@@ -16,13 +16,14 @@ typedef struct __dark_Vulkan {
    VkInstance instance;
 } dark_Vulkan;
 
+// The main information for the application/game
 typedef struct __dark_Application {
   
    uint32_t flags;
    dark_Vulkan* vulkan;
 
    char*	pName;
-   const char*	pEngineName;
+   char*	pEngineName;
    GLFWwindow*	pWindow;
 
    uint32_t windowSizeX;

@@ -4,6 +4,8 @@
 #include"Utils.h"
 #include"Init.h"
 
+/// This function is for checking all the basic information and
+/// fixing any basic errors
 void dark_CheckApplicationInfo(dark_Application* app)
 {
    if (NULL == app->pName)
@@ -32,9 +34,9 @@ int dark_InitDarkness(dark_Application* app, int arc, char** arv)
       goto EXIT_ERROR_0x01;
    }
 
-   atexit(glfwTerminate);
    dark_CheckApplicationInfo(app);
-  
+ 
+   /// if vulkan isn't supported then opengl will take over 
    if (!glfwVulkanSupported())
    {
       app->flags |= DARKNESS_USE_OPENGL;
@@ -42,6 +44,7 @@ int dark_InitDarkness(dark_Application* app, int arc, char** arv)
    }
    else
    {
+      /// the vulkan init function
       dark_InitVulkan(app);
    }
 
@@ -52,7 +55,7 @@ int dark_InitDarkness(dark_Application* app, int arc, char** arv)
    {
       if (GLEW_OK != glewInit())
       {
-	 goto EXIT_ERROR_0x02;
+	 goto EXIT_ERROR_0x03;
       }
    }
 
@@ -66,9 +69,15 @@ int dark_InitDarkness(dark_Application* app, int arc, char** arv)
       }
    }
 LOOP_EXIT:
-
+   
    return 0x0;
 
+EXIT_ERROR_0x03:
+   free(app->pName);
+   free(app->pEngineName);
+   app->windowSizeX = 0;
+   app->windowSizeY = 0;
+   glfwDestroyWindow(app->pWindow);
 EXIT_ERROR_0x02:
    glfwTerminate();
 EXIT_ERROR_0x01:
