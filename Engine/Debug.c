@@ -50,7 +50,7 @@ const char* __dark_GetVkReturnCode(int code)
 
 int __dark_VkCall(int code, const char* funcName, uint32_t line, const char* fileName)
 {
-   if (VK_SUCCESS == code || 1 == 1)
+   if (VK_SUCCESS != code || 1 == 1)
    {
       printf("\n%s%d%s\n%s%s%c%s%s%c%s%u%c%s%s%c\n",
 	    "[ VULKAN ERROR ::", code, " ]\n",
@@ -60,12 +60,10 @@ int __dark_VkCall(int code, const char* funcName, uint32_t line, const char* fil
 	    "	Error Name ::	", __dark_GetVkReturnCode(code), '\n'
 	 );
 
-      goto ERROR_EXIT;
+      return -0x1;
    }
 
    return 0x0;
-ERROR_EXIT:
-   return -0x1;
 }
 
 // The benchmark time
