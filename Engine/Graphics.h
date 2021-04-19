@@ -1,0 +1,3 @@
+#ifndef __darkness_graphics_header__
+#define __darkness_graphics_header__
+#endif //__darkness_graphics_header__

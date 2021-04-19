@@ -28,6 +28,9 @@ typedef struct __dark_Application {
 
    uint32_t windowSizeX;
    uint32_t windowSizeY;
+
+   void* (pClearFunc)();
+
 } dark_Application;
 
 #endif //__darknes_types_header__
