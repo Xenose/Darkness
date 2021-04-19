@@ -84,6 +84,7 @@ LOOP_EXIT:
    return 0x0;
 
 EXIT_ERROR_0x03:
+   /// TODO :: Cleanup this
    free(app->pName);
    free(app->pEngineName);
    app->windowSizeX = 0;
