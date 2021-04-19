@@ -56,11 +56,23 @@ int dark_InitDarkness(dark_Application* app, int arc, char** arv)
       if (GLEW_OK != glewInit())
       {
 	 goto EXIT_ERROR_0x03;
-      }
+      }   
    }
+
+   InitGraphicsCommands(app);
+
+   /// TODO :: Remove this
+   dark_Vertex2F left = { -1, -1 };
+   dark_Vertex2F right = { 1, -1 };
+   dark_Vertex2F up = { 0, 1 };
 
    while(1)
    {
+      dark_ClearScreen(app);
+
+      dark_DrawTriangle(left, right, up);
+
+      dark_SwapBuffers(app);
       glfwPollEvents();
 
       if (glfwWindowShouldClose(app->pWindow) || app->flags & DARKNESS_START_STOP)

@@ -12,6 +12,10 @@
 #define DARKNESS_START_STOP 0x02 // This flag will start the program without being stuck in loop
 #define DARKNESS_DEBUG_MODE 0x04 // This flag will add additional debug functions to the code
 
+typedef struct __dark_Vertex2F {
+   float x, y;
+} dark_Vertex2F;
+
 typedef struct __dark_Vulkan {
    VkInstance instance;
 } dark_Vulkan;
@@ -28,9 +32,6 @@ typedef struct __dark_Application {
 
    uint32_t windowSizeX;
    uint32_t windowSizeY;
-
-   void* (pClearFunc)();
-
 } dark_Application;
 
 #endif //__darknes_types_header__

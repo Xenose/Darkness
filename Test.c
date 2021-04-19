@@ -4,8 +4,9 @@ dark_Application _appInfo;
 
 int Main(int arc, char** arv)
 {
-   /// Test code for enabling pass-though mode 
+   /// Test flags for testing te diffrent components 
    ///_appInfo.flags |= DARKNESS_START_STOP;
+   _appInfo.flags |= DARKNESS_USE_OPENGL;
 
    if (0x0 != dark_InitDarkness(&_appInfo, arc, arv))
    {
