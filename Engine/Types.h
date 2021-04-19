@@ -3,6 +3,7 @@
 
 #include<stdint.h>
 #include<vulkan/vulkan.h>
+#include<GL/glew.h>
 #include<GLFW/glfw3.h>
 
 #define Main main // I like when functions uses the same style
