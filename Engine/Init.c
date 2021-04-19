@@ -27,7 +27,6 @@ void dark_CheckApplicationInfo(dark_Application* app)
 
 int dark_InitDarkness(dark_Application* app, int arc, char** arv)
 {
-   
    if (!glfwInit())
    {
       puts("[ FAITAL ERROR ] :: failed to start glfw!");

@@ -16,6 +16,10 @@ typedef struct __dark_Vertex2F {
    float x, y;
 } dark_Vertex2F;
 
+typedef struct __dark_Vertex3F {
+   float x, y, z;
+} dark_Vertex3F;
+
 typedef struct __dark_Vulkan {
    VkInstance instance;
 } dark_Vulkan;
