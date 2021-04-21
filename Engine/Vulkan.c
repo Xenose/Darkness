@@ -47,13 +47,13 @@ const char* dark_VkGetNameFromVendorIDWithColor(uint32_t id)
       case 0x1010:
 	return "\033[31mImgTec\033[0m";
       case 0x10DE:
-	return "\032[31mNVIDIA\033[0m"; 
+	return "\033[32mNVIDIA\033[0m"; 
       case 0x13B5:
 	return "\033[31mARM\033[0m";
       case 0x5143:
 	return "\033[31mQualcomm\033[0m";
       case 0x8086:
-	return "\036[31mIntel\033[0m";
+	return "\033[36mIntel\033[0m";
    }
 
    return "Unkowned";
