@@ -59,6 +59,25 @@ const char* dark_VkGetNameFromVendorIDWithColor(uint32_t id)
    return "Unkowned";
 }
 
+const char* dark_VkGetDeviceTypeName(VkPhysicalDeviceType type)
+{
+   switch ((uint32_t)type)
+   {
+      case 0:
+	 return "OTHER";
+      case 1:
+	 return "ITEGRATED";
+      case 2:
+	 return "DISCRETE";
+      case 3:
+	 return "VIRTUAL";
+      case 4:
+	 return "CPU";
+   }
+
+   return "unkowned";
+}
+
 int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
 {
    uint32_t deviceCount = 0;
@@ -74,11 +93,12 @@ int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
    {
       vkGetPhysicalDeviceProperties(devices[i], &properties);
 
-      printf("\n%s%s%s%X%s%s%X%s%s%s%s\n",
+      printf("\n%s%s%s%X%s%s%X%s%s%s%s%s%s%s\n",
 	    "[ \033[35mDEVICE INFO\033[0m ] ", properties.deviceName, "\n\n"
 	    "	Vulkan API Version	: 0x", properties.apiVersion, "\n",
 	    "	Driver Version		: 0x", properties.driverVersion, "\n",
-	    "	Manufacture		: ", dark_VkGetNameFromVendorIDWithColor(properties.vendorID), "\n");
+	    "	Manufacture		: ", dark_VkGetNameFromVendorIDWithColor(properties.vendorID), "\n",
+	    "	Device type		: ", dark_VkGetDeviceTypeName(properties.deviceType), "\n");
    }
 
    free(devices);
