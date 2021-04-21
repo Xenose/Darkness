@@ -6,14 +6,31 @@
 #include"Utils.h"
 #include"Init.h"
 
+void dark_PrintHelpInfo()
+{
+   printf("%s%s%s",
+	 "\n\nThese are the debug/launch commands for the darkness engine:\n\n",
+	 "	help	:: will list this help page\n",
+	 "	opengl	:: will launch the engine in opengl mode\n");
+}
+
 void dark_ParseInputArgs(dark_Application* app, int arc, char** arv)
 {
    if (arc > 1)
    {
       for (int i = 1; i < arc; i++)
       {
+	 /// to reduce the numbers of ifs we first use the length of the command
+	 /// to sort it with a switch
 	 switch(strlen(arv[i]))
 	 {
+	    case 4:
+	       if (!strcmp(arv[i], "help"))
+	       {
+		  dark_PrintHelpInfo();
+		  exit(0);
+	       }
+	       break;
 	    case 5:
 	       if (!strcmp(arv[i], "debug"))
 	       {
