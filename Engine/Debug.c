@@ -53,7 +53,7 @@ int __dark_VkCall(int code, const char* funcName, uint32_t line, const char* fil
    if (VK_SUCCESS != code)
    {
       printf("\n%s%d%s\n%s%s%c%s%s%c%s%u%c%s%s%c\n",
-	    "[ VULKAN ERROR ::", code, " ]\n",
+	    "[ \033[31mVULKAN ERROR\033[0m ::", code, " ]\n",
 	    "	Function ::	", funcName, '\n',
 	    "	File Name ::	", fileName, '\n',
 	    "	Line Number ::	", line, '\n',
