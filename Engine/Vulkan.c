@@ -81,6 +81,7 @@ const char* dark_VkGetDeviceTypeName(VkPhysicalDeviceType type)
 int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
 {
    uint32_t deviceCount = 0;
+   uint32_t selectedDeviceIndex = 0;
    VkPhysicalDevice* devices = NULL;
    VkPhysicalDeviceProperties properties;
    
@@ -92,25 +93,54 @@ int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
    for (int i = 0; i < deviceCount; i++)
    {
       vkGetPhysicalDeviceProperties(devices[i], &properties);
+   } 
 
-      printf("\n%s%s%s%X%s%s%X%s%s%s%s%s%s%s\n",
-	    "[ \033[35mDEVICE INFO\033[0m ] ", properties.deviceName, "\n\n"
-	    "	Vulkan API Version	: 0x", properties.apiVersion, "\n",
-	    "	Driver Version		: 0x", properties.driverVersion, "\n",
-	    "	Manufacture		: ", dark_VkGetNameFromVendorIDWithColor(properties.vendorID), "\n",
-	    "	Device type		: ", dark_VkGetDeviceTypeName(properties.deviceType), "\n");
+   /// TODO :: Add a compilation flag to remove this on release versions 
+   for (int i = 0; i < deviceCount; i++)
+   {
+      vkGetPhysicalDeviceProperties(devices[i], &properties);
+
+      /// printing out the graphics info to stdout
+      printf("\n%s%s%s%s%s%X%s%s%X%s%s%s%s%s%s%s\n",
+	    "[ \033[35mDEVICE INFO\033[0m ] ", properties.deviceName, 
+	    selectedDeviceIndex == i ? "\t[   \033[32mSelected\033[0m   ] " : "\t[ \033[31mNot Selected\033[0m ] ", 
+	    "\n\n",
+	    "\tVulkan API Version\t: 0x", properties.apiVersion, "\n",
+	    "\tDriver Version\t\t: 0x", properties.driverVersion, "\n",
+	    "\tManufacture\t\t: ", dark_VkGetNameFromVendorIDWithColor(properties.vendorID), "\n",
+	    "\tDevice type\t\t: ", dark_VkGetDeviceTypeName(properties.deviceType), "\n");
    }
 
+   vk->physicalDevice = devices[selectedDeviceIndex];
    free(devices);
    return 0x0;
 }
 
-int dark_VkCreateDevice(dark_Application* app, dark_Vulkan* vulkan)
+VkQueueFamilyProperties dark_VkCreateQueue(dark_Application* app, dark_Vulkan* vk)
+{
+   uint32_t queueCount = 0;
+   VkQueueFamilyProperties returnProperties;
+   VkQueueFamilyProperties* queueProperties;
+
+   vkGetPhysicalDeviceQueueFamilyProperties(vk->physicalDevice, &queueCount, NULL);
+   queueProperties = MallocTypes(VkQueueFamilyProperties, queueCount);
+   
+   vkGetPhysicalDeviceQueueFamilyProperties(vk->physicalDevice, &queueCount, queueProperties);
+
+   for (int i = 0; i < queueCount; i++)
+   {
+   }
+   
+   free(queueProperties);
+   return returnProperties;
+}
+
+int dark_VkCreateDevice(dark_Application* app, dark_Vulkan* vk)
 {
    return 0x0;
 }
 
-int dark_VkCreateSurface(dark_Application app, dark_Vulkan* vulkan)
+int dark_VkCreateSurface(dark_Application app, dark_Vulkan* vk)
 {
    return 0x0;
 }

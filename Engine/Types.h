@@ -21,7 +21,8 @@ typedef struct __dark_Vertex3F {
 } dark_Vertex3F;
 
 typedef struct __dark_Vulkan {
-   VkInstance instance;
+   VkInstance		instance;
+   VkPhysicalDevice	physicalDevice;
 } dark_Vulkan;
 
 // The main information for the application/game
