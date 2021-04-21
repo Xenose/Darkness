@@ -23,26 +23,28 @@ void dark_ParseInputArgs(dark_Application* app, int arc, char** arv)
       {
 	 /// to reduce the numbers of ifs we first use the length of the command
 	 /// to sort it with a switch
-	 switch(strlen(arv[i]))
+	 switch(arv[i][0])
 	 {
-	    case 4:
+	    case 'h':
 	       if (!strcmp(arv[i], "help"))
 	       {
 		  dark_PrintHelpInfo();
 		  exit(0);
 	       }
 	       break;
-	    case 5:
+	    case 'd':
 	       if (!strcmp(arv[i], "debug"))
 	       {
 		  puts("Entering debug mode!");
+		  break;
 	       }
 	       break;
-	    case 6:
+	    case 'o':
 	       if (!strcmp(arv[i], "opengl"))
 	       {
 		  app->flags |= DARKNESS_USE_OPENGL;
 		  puts("Selected OpenGL mode for rendering");
+		  break;
 	       }
 	       break;
 	 }
