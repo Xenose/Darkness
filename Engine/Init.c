@@ -84,12 +84,12 @@ int dark_InitDarkness(dark_Application* app, int arc, char** arv)
    dark_CheckApplicationInfo(app);
  
    /// if vulkan isn't supported then opengl will take over 
-   if (!glfwVulkanSupported() || app->flags & DARKNESS_USE_OPENGL)
+   if (!glfwVulkanSupported())
    {
       app->flags |= DARKNESS_USE_OPENGL;
       puts("[ ERROR ] :: No vulkan support falling back to opengl");
    }
-   else
+   else if (!(app->flags & DARKNESS_USE_OPENGL))
    {
       /// the vulkan init function
       dark_InitVulkan(app);
