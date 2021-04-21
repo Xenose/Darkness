@@ -38,6 +38,7 @@ int dark_VkInitInstance(dark_Application* app, dark_Vulkan* vk)
    return 0x0;
 }
 
+/// Getting the company name for logging and other uses cases maybe?
 const char* dark_VkGetNameFromVendorIDWithColor(uint32_t id)
 {
    switch(id)
@@ -59,6 +60,7 @@ const char* dark_VkGetNameFromVendorIDWithColor(uint32_t id)
    return "Unkowned";
 }
 
+/// A function for getting a human readble name on the type of graphics used.
 const char* dark_VkGetDeviceTypeName(VkPhysicalDeviceType type)
 {
    switch ((uint32_t)type)
@@ -83,36 +85,38 @@ int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
    uint32_t deviceCount = 0;
    uint32_t selectedDeviceIndex = 0;
    VkPhysicalDevice* devices = NULL;
-   VkPhysicalDeviceProperties properties;
+   VkPhysicalDeviceProperties* properties = NULL;
    
    dark_VkCall(vkEnumeratePhysicalDevices(vk->instance, &deviceCount, NULL));
 
    devices = MallocTypes(VkPhysicalDevice, deviceCount);
+   properties = MallocTypes(VkPhysicalDeviceProperties, deviceCount);
+
    dark_VkCall(vkEnumeratePhysicalDevices(vk->instance, &deviceCount, devices));
 
    for (int i = 0; i < deviceCount; i++)
    {
-      vkGetPhysicalDeviceProperties(devices[i], &properties);
+      vkGetPhysicalDeviceProperties(devices[i], &properties[i]);
    } 
 
    /// TODO :: Add a compilation flag to remove this on release versions 
    for (int i = 0; i < deviceCount; i++)
    {
-      vkGetPhysicalDeviceProperties(devices[i], &properties);
-
+      /// I want something cleaner...
       /// printing out the graphics info to stdout
       printf("\n%s%s%s%s%s%X%s%s%X%s%s%s%s%s%s%s\n",
-	    "[ \033[35mDEVICE INFO\033[0m ] ", properties.deviceName, 
+	    "[ \033[35mDEVICE INFO\033[0m ] ", properties[i].deviceName, 
 	    selectedDeviceIndex == i ? "\t[   \033[32mSelected\033[0m   ] " : "\t[ \033[31mNot Selected\033[0m ] ", 
 	    "\n\n",
-	    "\tVulkan API Version\t: 0x", properties.apiVersion, "\n",
-	    "\tDriver Version\t\t: 0x", properties.driverVersion, "\n",
-	    "\tManufacture\t\t: ", dark_VkGetNameFromVendorIDWithColor(properties.vendorID), "\n",
-	    "\tDevice type\t\t: ", dark_VkGetDeviceTypeName(properties.deviceType), "\n");
+	    "\tVulkan API Version\t: 0x", properties[i].apiVersion, "\n",
+	    "\tDriver Version\t\t: 0x", properties[i].driverVersion, "\n",
+	    "\tManufacture\t\t: ", dark_VkGetNameFromVendorIDWithColor(properties[i].vendorID), "\n",
+	    "\tDevice type\t\t: ", dark_VkGetDeviceTypeName(properties[i].deviceType), "\n");
    }
 
    vk->physicalDevice = devices[selectedDeviceIndex];
    free(devices);
+   free(properties);
    return 0x0;
 }
 

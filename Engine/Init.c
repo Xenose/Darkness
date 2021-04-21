@@ -9,10 +9,11 @@
 /// This is just the help info that gets printed when typing help
 void dark_PrintHelpInfo()
 {
-   printf("%s%s%s",
+   printf("%s%s%s%s",
 	 "\n\nThese are the debug/launch commands for the darkness engine:\n\n",
-	 "	help	:: will list this help page\n",
-	 "	opengl	:: will launch the engine in opengl mode\n");
+	 "\thelp\t:: will list this help page\n\n",
+	 "\tdrun\t:: will exit the program without waithing for user input\n", /// debug run
+	 "\topengl\t:: will launch the engine in opengl mode\n");
 }
 
 void dark_ParseInputArgs(dark_Application* app, int arc, char** arv)
@@ -25,17 +26,22 @@ void dark_ParseInputArgs(dark_Application* app, int arc, char** arv)
 	 switch(arv[i][0])
 	 {
 	    default:
-	    case 'h':
-	       if (!strcmp(arv[i], "help"))
-	       {
-		  dark_PrintHelpInfo();
-		  exit(0);
-	       }
 	    case 'd':
 	       if (!strcmp(arv[i], "debug"))
 	       {
 		  puts("Entering debug mode!");
 		  break;
+	       }
+	       if (!strcmp(arv[i], "drun"))
+	       {
+		  app->flags |= DARKNESS_START_STOP;
+		  break;
+	       }
+	    case 'h':
+	       if (!strcmp(arv[i], "help"))
+	       {
+		  dark_PrintHelpInfo();
+		  exit(0);
 	       }
 	    case 'o':
 	       if (!strcmp(arv[i], "opengl"))
