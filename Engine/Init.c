@@ -6,6 +6,7 @@
 #include"Utils.h"
 #include"Init.h"
 
+/// This is just the help info that gets printed when typing help
 void dark_PrintHelpInfo()
 {
    printf("%s%s%s",
