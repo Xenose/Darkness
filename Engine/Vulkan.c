@@ -40,7 +40,6 @@ int dark_VkInitInstance(dark_Application* app, dark_Vulkan* vk)
 
 const char* dark_VkGetNameFromVendorIDWithColor(uint32_t id)
 {
-   printf("%x\n", id);
    switch(id)
    {
       case 0x1002:
@@ -48,13 +47,13 @@ const char* dark_VkGetNameFromVendorIDWithColor(uint32_t id)
       case 0x1010:
 	return "\033[31mImgTec\033[0m";
       case 0x10DE:
-	return "\033[31mNVIDIA\033[0m"; 
+	return "\032[31mNVIDIA\033[0m"; 
       case 0x13B5:
 	return "\033[31mARM\033[0m";
       case 0x5143:
 	return "\033[31mQualcomm\033[0m";
       case 0x8086:
-	return "\033[31mIntel\033[0m";
+	return "\036[31mIntel\033[0m";
    }
 
    return "Unkowned";
@@ -75,9 +74,10 @@ int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
    {
       vkGetPhysicalDeviceProperties(devices[i], &properties);
 
-      printf("\n%s%s%s%d%s%s%s%s\n",
+      printf("\n%s%s%s%X%s%s%X%s%s%s%s\n",
 	    "[ \033[35mDEVICE INFO\033[0m ] ", properties.deviceName, "\n\n"
-	    "	Vulkan API Version	: ", properties.apiVersion, "\n",
+	    "	Vulkan API Version	: 0x", properties.apiVersion, "\n",
+	    "	Driver Version		: 0x", properties.driverVersion, "\n",
 	    "	Manufacture		: ", dark_VkGetNameFromVendorIDWithColor(properties.vendorID), "\n");
    }
 
