@@ -84,7 +84,6 @@ int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
 {
    uint32_t deviceCount = 0;
    uint32_t selectedDeviceIndex = 0;
-
    VkPhysicalDevice* devices = NULL;
    VkPhysicalDeviceProperties* properties = NULL;
    
@@ -107,7 +106,7 @@ int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
       /// printing out the graphics info to stdout
       printf("\n%s%s%s%s%s%X%s%s%X%s%s%s%s%s%s%s\n",
 	    "[ \033[35mDEVICE INFO\033[0m ] ", properties[i].deviceName, 
-	    selectedDeviceIndex == i ? "\t\t[   \033[32mSelected\033[0m   ] " : "\t\t[ \033[31mNot Selected\033[0m ] ", 
+	    selectedDeviceIndex == i ? "\t[   \033[32mSelected\033[0m   ] " : "\t[ \033[31mNot Selected\033[0m ] ", 
 	    "\n\n",
 	    "\tVulkan API Version\t: 0x", properties[i].apiVersion, "\n",
 	    "\tDriver Version\t\t: 0x", properties[i].driverVersion, "\n",
@@ -121,11 +120,10 @@ int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
    return 0x0;
 }
 
-int dark_VkGetQueueInfo(dark_Application* app, dark_Vulkan* vk, 
-      VkQueueFamilyProperties* returnProperties, const VkQueueFlags flags)
+VkQueueFamilyProperties dark_VkCreateQueue(dark_Application* app, dark_Vulkan* vk, const VkQueueFlags flags)
 {
-   int index = 0;
    uint32_t queueCount = 0;
+   VkQueueFamilyProperties returnProperties;
    VkQueueFamilyProperties* queueProperties;
 
    vkGetPhysicalDeviceQueueFamilyProperties(vk->physicalDevice, &queueCount, NULL);
@@ -135,47 +133,19 @@ int dark_VkGetQueueInfo(dark_Application* app, dark_Vulkan* vk,
 
    for (int i = 0; i < queueCount; i++)
    {
-      if (flags & queueProperties[i].queueFlags)
+      if (flags == queueProperties[i].queueFlags)
       {
-	 *returnProperties = queueProperties[i];
-	 index = i;
+	 returnProperties = queueProperties[i];
 	 break;
       }
    }
    
    free(queueProperties);
-   return index;
+   return returnProperties;
 }
 
 int dark_VkCreateDevice(dark_Application* app, dark_Vulkan* vk)
 {
-   VkDeviceCreateInfo vkInfo;
-   VkDeviceQueueCreateInfo vkQueue;
-   VkQueueFamilyProperties queueProperties;
-
-   float queuePriority = 1;
-   int queueFamilyIndex = dark_VkGetQueueInfo(app, vk, &queueProperties, VK_QUEUE_GRAPHICS_BIT);
-
-   vkQueue.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-   vkQueue.pNext = NULL;
-   vkQueue.flags = 0x0;
-   vkQueue.queueFamilyIndex = queueFamilyIndex;
-   vkQueue.queueCount = 1;
-   vkQueue.pQueuePriorities = &queuePriority;
-
-   vkInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-   vkInfo.pNext = NULL;
-   vkInfo.flags = 0x0;
-   vkInfo.enabledLayerCount = 0;
-   vkInfo.ppEnabledLayerNames = NULL;
-   vkInfo.enabledExtensionCount = 0;
-   vkInfo.ppEnabledExtensionNames = NULL;
-   vkInfo.pQueueCreateInfos = &vkQueue;
-   vkInfo.queueCreateInfoCount = 1;
-   vkInfo.pEnabledFeatures = NULL;
-
-   dark_VkCall(vkCreateDevice(vk->physicalDevice, &vkInfo, NULL, &vk->graphicsDevice));
-   vkGetDeviceQueue(vk->graphicsDevice, queueFamilyIndex, 0, &vk->graphicsQueue);
    return 0x0;
 }
 
@@ -193,7 +163,6 @@ int dark_InitVulkan(dark_Application* app)
 
    dark_VkInitInstance(app, app->vulkan);
    dark_VkPickPhysicalDevice(app, app->vulkan);
-   dark_VkCreateDevice(app, app->vulkan);
 
    return 0x0;
 }

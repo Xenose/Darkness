@@ -23,6 +23,8 @@ typedef struct __dark_Vertex3F {
 typedef struct __dark_Vulkan {
    VkInstance		instance;
    VkPhysicalDevice	physicalDevice;
+   VkDevice		graphicsDevice;
+   VkQueue		graphicsQueue;
 } dark_Vulkan;
 
 // The main information for the application/game
