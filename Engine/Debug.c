@@ -7,6 +7,7 @@
 
 int (*dark_PrintLog)(const char* format, ...) = &__dark_PrintLogNull;
 
+/// The actual logging function
 int __dark_PrintLogOut(const char* format, ...)
 {
    va_list args;
@@ -19,6 +20,7 @@ int __dark_PrintLogOut(const char* format, ...)
    return 0x0;
 }
 
+/// A dummy function to void the logging output
 int __dark_PrintLogNull(const char* format, ...)
 {
    return 0x0;
