@@ -1,7 +1,28 @@
+#include<unistd.h>
 #include<time.h>
 #include<stdio.h>
 #include"Types.h"
 #include"Debug.h"
+
+
+int (*dark_PrintLog)(const char* format, ...) = &__dark_PrintLogNull;
+
+int __dark_PrintLogOut(const char* format, ...)
+{
+   va_list args;
+   va_start(args, format);
+
+   write(1, "[   \033[93mLOG\033[0m   ] ", 22);
+   printf(format, args);
+   
+   va_end(args);
+   return 0x0;
+}
+
+int __dark_PrintLogNull(const char* format, ...)
+{
+   return 0x0;
+}
 
 // This will translate VkResult codes into actual readble text
 // for humans...

@@ -29,7 +29,8 @@ void dark_ParseInputArgs(dark_Application* app, int arc, char** arv)
 	    case 'd':
 	       if (!strcmp(arv[i], "debug"))
 	       {
-		  puts("Entering debug mode!");
+		  dark_PrintLog = &__dark_PrintLogOut;
+		  dark_PrintLog("Entering debug mode!\n");
 		  break;
 	       }
 	       if (!strcmp(arv[i], "drun"))

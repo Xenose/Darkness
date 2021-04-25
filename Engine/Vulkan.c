@@ -3,7 +3,7 @@
 
 int dark_VkInitInstance(dark_Application* app, dark_Vulkan* vk)
 {
-   puts("[   LOG   ] Creating vulkan instance!");
+   dark_PrintLog("Creating vulkan instance!\n");
 
    uint32_t apiVersion = 0;
    dark_VkCall(vkEnumerateInstanceVersion(&apiVersion));
@@ -22,7 +22,7 @@ int dark_VkInitInstance(dark_Application* app, dark_Vulkan* vk)
    vkApp.pEngineName =			app->pEngineName;
    vkApp.applicationVersion =		VK_MAKE_VERSION(0,0,1);
    vkApp.engineVersion =		VK_MAKE_VERSION(0,0,1);
-   vkApp.apiVersion =			apiVersion;
+   vkApp.apiVersion =			VK_MAKE_VERSION(1,2,0);
 
    vkInfo.sType =			VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
    vkInfo.pNext =			NULL;
@@ -82,6 +82,8 @@ const char* dark_VkGetDeviceTypeName(VkPhysicalDeviceType type)
 
 int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
 {
+   dark_PrintLog("Picking physical device!\n");
+   
    uint32_t deviceCount = 0;
    uint32_t selectedDeviceIndex = 0;
 
@@ -124,6 +126,8 @@ int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
 int dark_VkGetQueueInfo(dark_Application* app, dark_Vulkan* vk, 
       VkQueueFamilyProperties* returnProperties, const VkQueueFlags flags)
 {
+   dark_PrintLog("Getting queue infos!\n");
+   
    int index = 0;
    uint32_t queueCount = 0;
    VkQueueFamilyProperties* queueProperties;
@@ -186,6 +190,8 @@ int dark_VkCreateSurface(dark_Application app, dark_Vulkan* vk)
 
 int dark_InitVulkan(dark_Application* app)
 {
+   dark_PrintLog("Initializing Vulkan!\n");
+
    if (NULL == app->vulkan)
    {
       app->vulkan = MallocType(dark_Vulkan);
