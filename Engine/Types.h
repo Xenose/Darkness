@@ -25,6 +25,8 @@ typedef struct __dark_Vulkan {
    VkPhysicalDevice	physicalDevice;
    VkDevice		graphicsDevice;
    VkQueue		graphicsQueue;
+   VkCommandBuffer	primaryCommandBuffer;
+   VkSurfaceKHR		surface;
 } dark_Vulkan;
 
 // The main information for the application/game
