@@ -8,39 +8,51 @@
 
 #define Main main // I like when functions uses the same style
 
-#define DARKNESS_USE_OPENGL 0x01 // This flag forces darkness to use opengl instead of vulkan
-#define DARKNESS_START_STOP 0x02 // This flag will start the program without being stuck in loop
-#define DARKNESS_DEBUG_MODE 0x04 // This flag will add additional debug functions to the code
+#define DARKNESS_USE_OPENGL 	0x01 // This flag forces darkness to use opengl instead of vulkan
+#define DARKNESS_START_STOP 	0x02 // This flag will start the program without being stuck in loop
+#define DARKNESS_DEBUG_MODE 	0x04 // This flag will add additional debug functions to the code
+#define DARKNESS_NO_GRAPHICS	0x08 // Use the engine without any graphics
 
-typedef struct __dark_Vertex2F {
+typedef struct __darkVertex2F {
    float x, y;
-} dark_Vertex2F;
+} darkVertex2F;
 
-typedef struct __dark_Vertex3F {
+typedef struct __darkVertex3F {
    float x, y, z;
-} dark_Vertex3F;
+} darkVertex3F;
 
-typedef struct __dark_Vulkan {
+typedef struct __darkVertex4F {
+   float x, y, z, a;
+} darkVertex4F;
+
+typedef struct __darkVulkan {
    VkInstance		instance;
    VkPhysicalDevice	physicalDevice;
    VkDevice		graphicsDevice;
    VkQueue		graphicsQueue;
-   VkCommandBuffer	primaryCommandBuffer;
    VkSurfaceKHR		surface;
-} dark_Vulkan;
+   VkCommandPool	commandPool;
+} darkVulkan;
+
+// Information about the system useful to the engine
+typedef struct __darkSystemInfo {
+   unsigned short	cpuCoreCount; // The total number of cores in the system
+   unsigned short	cpuThreadCount;	// The total amount of thread in the system
+   unsigned int		maxMemory; // The total amount of memory in the system
+} darkSystemInfo;
 
 // The main information for the application/game
-typedef struct __dark_Application {
+typedef struct __darkApplication {
   
    uint32_t flags;
-   dark_Vulkan* vulkan;
+   darkVulkan* vulkan;
 
    char*	pName;
    char*	pEngineName;
    GLFWwindow*	pWindow;
 
-   uint32_t windowSizeX;
-   uint32_t windowSizeY;
-} dark_Application;
+   int windowSizeX;
+   int windowSizeY;
+} darkApplication;
 
 #endif //__darknes_types_header__

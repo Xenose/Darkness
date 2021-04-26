@@ -1,20 +1,20 @@
 #include"Graphics.h"
 
-void (*dark_ClearScreen)(dark_Application* app);
-void (*dark_SwapBuffers)(dark_Application* app);
-void (*dark_DrawTriangle)(dark_Vertex2F left, dark_Vertex2F right, dark_Vertex2F up);
+void (*dark_ClearScreen)(darkApplication* app);
+void (*dark_SwapBuffers)(darkApplication* app);
+void (*dark_DrawTriangle)(darkVertex2F left, darkVertex2F right, darkVertex2F up);
 
-void dark_ClearScreenGL(dark_Application* app)
+void dark_ClearScreenGL(darkApplication* app)
 {
    glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void dark_SwapBuffersGL(dark_Application* app)
+void dark_SwapBuffersGL(darkApplication* app)
 {
    glfwSwapBuffers(app->pWindow);
 }
 
-void dark_DrawTriangleGL(dark_Vertex2F left, dark_Vertex2F right, dark_Vertex2F up)
+void dark_DrawTriangleGL(darkVertex2F left, darkVertex2F right, darkVertex2F up)
 {
    glBegin(GL_TRIANGLES);
       glVertex2f(left.x, left.y);
@@ -23,19 +23,19 @@ void dark_DrawTriangleGL(dark_Vertex2F left, dark_Vertex2F right, dark_Vertex2F 
    glEnd();
 }
 
-void dark_ClearScreenVulkan(dark_Application* app)
+void dark_ClearScreenVulkan(darkApplication* app)
 {
 }
 
-void dark_SwapBuffersVulkan(dark_Application* app)
+void dark_SwapBuffersVulkan(darkApplication* app)
 {
 }
 
-void dark_DrawTriangleVulkan(dark_Vertex2F left, dark_Vertex2F right, dark_Vertex2F up)
+void dark_DrawTriangleVulkan(darkVertex2F left, darkVertex2F right, darkVertex2F up)
 {
 }
 
-int InitGraphicsCommands(dark_Application* app)
+int InitGraphicsCommands(darkApplication* app)
 {
    if (DARKNESS_USE_OPENGL & app->flags)
    {

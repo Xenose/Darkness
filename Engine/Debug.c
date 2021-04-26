@@ -1,14 +1,15 @@
 #include<unistd.h>
 #include<time.h>
 #include<stdio.h>
+#include<stdarg.h>
 #include"Types.h"
 #include"Debug.h"
 
 
-int (*dark_PrintLog)(const char* format, ...) = &__dark_PrintLogNull;
+int (*dark_PrintLog)(const char* format, ...) = &__darkPrintLogNull;
 
 /// The actual logging function
-int __dark_PrintLogOut(const char* format, ...)
+int __darkPrintLogOut(const char* format, ...)
 {
    va_list args;
    va_start(args, format);
@@ -21,7 +22,7 @@ int __dark_PrintLogOut(const char* format, ...)
 }
 
 /// A dummy function to void the logging output
-int __dark_PrintLogNull(const char* format, ...)
+int __darkPrintLogNull(const char* format, ...)
 {
    return 0x0;
 }
@@ -71,7 +72,7 @@ const char* __dark_GetVkReturnCode(int code)
    return "Unkown code";
 }
 
-int __dark_VkCall(int code, const char* funcName, uint32_t line, const char* fileName)
+int __darkVkCall(int code, const char* funcName, uint32_t line, const char* fileName)
 {
    if (VK_SUCCESS != code)
    {

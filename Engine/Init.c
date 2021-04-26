@@ -16,7 +16,7 @@ void dark_PrintHelpInfo()
 	 "\topengl\t:: will launch the engine in opengl mode\n");
 }
 
-void dark_ParseInputArgs(dark_Application* app, int arc, char** arv)
+void dark_ParseInputArgs(darkApplication* app, int arc, char** arv)
 {
    if (arc > 1)
    {
@@ -29,7 +29,7 @@ void dark_ParseInputArgs(dark_Application* app, int arc, char** arv)
 	    case 'd':
 	       if (!strcmp(arv[i], "debug"))
 	       {
-		  dark_PrintLog = &__dark_PrintLogOut;
+		  dark_PrintLog = &__darkPrintLogOut;
 		  dark_PrintLog("Entering debug mode!\n");
 		  break;
 	       }
@@ -48,7 +48,7 @@ void dark_ParseInputArgs(dark_Application* app, int arc, char** arv)
 	       if (!strcmp(arv[i], "opengl"))
 	       {
 		  app->flags |= DARKNESS_USE_OPENGL;
-		  puts("Selected OpenGL mode for rendering");
+		  dark_PrintLog("Selected OpenGL mode for rendering\n");
 		  break;
 	       }
 	 }
@@ -58,7 +58,7 @@ void dark_ParseInputArgs(dark_Application* app, int arc, char** arv)
 
 /// This function is for checking all the basic information and
 /// fixing any basic errors
-void dark_CheckApplicationInfo(dark_Application* app)
+void darkCheckApplicationInfo(darkApplication* app)
 {
    if (NULL == app->pName)
    {
@@ -77,7 +77,32 @@ void dark_CheckApplicationInfo(dark_Application* app)
    }
 }
 
-int dark_InitDarkness(dark_Application* app, int arc, char** arv)
+int darkInitVulkan(darkApplication* app, int arc, char** arv)
+{
+   /// the vulkan init function
+   dark_InitVulkan(app);
+   app->pWindow = glfwCreateWindow(app->windowSizeX, app->windowSizeY, app->pName, NULL, NULL);
+   glfwGetWindowSize(app->pWindow, &app->windowSizeX, &app->windowSizeY);
+   
+   return 0x0;
+}
+
+int darkInitOpenGL(darkApplication* app, int arc, char** arv)
+{
+   app->pWindow = glfwCreateWindow(app->windowSizeX, app->windowSizeY, app->pName, NULL, NULL);
+   glfwMakeContextCurrent(app->pWindow);
+
+   if (GLEW_OK != glewInit())
+   {
+      return -0x1;
+   }
+
+   glfwGetWindowSize(app->pWindow, &app->windowSizeX, &app->windowSizeY);
+   glViewport(0, 0, app->windowSizeX, app->windowSizeY);
+   return 0x0;
+}
+
+int darkInitDarkness(darkApplication* app, int arc, char** arv)
 {
    dark_ParseInputArgs(app, arc, arv);
 
@@ -87,7 +112,7 @@ int dark_InitDarkness(dark_Application* app, int arc, char** arv)
       goto EXIT_ERROR_0x01;
    }
 
-   dark_CheckApplicationInfo(app);
+   darkCheckApplicationInfo(app);
  
    /// if vulkan isn't supported then opengl will take over 
    if (!glfwVulkanSupported())
@@ -97,27 +122,20 @@ int dark_InitDarkness(dark_Application* app, int arc, char** arv)
    }
    else if (!(app->flags & DARKNESS_USE_OPENGL))
    {
-      /// the vulkan init function
-      dark_InitVulkan(app);
+      darkInitVulkan(app, arc, arv);
    }
-
-   app->pWindow = glfwCreateWindow(app->windowSizeX, app->windowSizeY, app->pName, NULL, NULL);
-   glfwMakeContextCurrent(app->pWindow);
-
-   if(DARKNESS_USE_OPENGL & app->flags)
+   else
    {
-      if (GLEW_OK != glewInit())
-      {
+      if (0x0 != darkInitOpenGL(app, arc, arv))
 	 goto EXIT_ERROR_0x03;
-      }   
    }
 
    InitGraphicsCommands(app);
 
    /// TODO :: Remove this
-   dark_Vertex2F left = { -1, -1 };
-   dark_Vertex2F right = { 1, -1 };
-   dark_Vertex2F up = { 0, 1 };
+   darkVertex2F left = { -1, -1 };
+   darkVertex2F right = { 1, -1 };
+   darkVertex2F up = { 0, 1 };
 
    while(1)
    {

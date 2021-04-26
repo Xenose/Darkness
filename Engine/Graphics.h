@@ -3,11 +3,11 @@
 
 #include"Types.h"
 
-extern int InitGraphicsCommands(dark_Application* app);
+extern int InitGraphicsCommands(darkApplication* app);
 
 /// Pointers for either the vulkan or gl implimentation
-extern void (*dark_ClearScreen)(dark_Application* app);
-extern void (*dark_SwapBuffers)(dark_Application* app);
-extern void (*dark_DrawTriangle)(dark_Vertex2F left, dark_Vertex2F right, dark_Vertex2F up);
+extern void (*dark_ClearScreen)(darkApplication* app);
+extern void (*dark_SwapBuffers)(darkApplication* app);
+extern void (*dark_DrawTriangle)(darkVertex2F left, darkVertex2F right, darkVertex2F up);
 
 #endif //__darkness_graphics_header__

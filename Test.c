@@ -1,16 +1,17 @@
+#include<stdio.h>
 #include"Engine/Darkness.h"
 
-dark_Application _appInfo;
+darkApplication _appInfo;
 
 int Main(int arc, char** arv)
 {
-   /// Test flags for testing te diffrent components 
-   //_appInfo.flags |= DARKNESS_START_STOP;
 
-   if (0x0 != dark_InitDarkness(&_appInfo, arc, arv))
+   printf("%f\n", 100.000);
+
+   /*if (0x0 != darkInitDarkness(&_appInfo, arc, arv))
    {
       goto EXIT_0x1;
-   }
+   }*/
 
 EXIT_0x1:
    return 0x0;

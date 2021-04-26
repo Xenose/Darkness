@@ -1,7 +1,7 @@
 #include"Debug.h"
 #include"Vulkan.h"
 
-int dark_VkInitInstance(dark_Application* app, dark_Vulkan* vk)
+int darkVkInitInstance(darkApplication* app, darkVulkan* vk)
 {
    dark_PrintLog("Creating vulkan instance!\n");
 
@@ -80,7 +80,7 @@ const char* dark_VkGetDeviceTypeName(VkPhysicalDeviceType type)
    return "unkowned";
 }
 
-int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
+int dark_VkPickPhysicalDevice(darkApplication* app, darkVulkan* vk)
 {
    dark_PrintLog("Picking physical device!\n");
    
@@ -123,7 +123,7 @@ int dark_VkPickPhysicalDevice(dark_Application* app, dark_Vulkan* vk)
    return 0x0;
 }
 
-int dark_VkGetQueueInfo(dark_Application* app, dark_Vulkan* vk, 
+int dark_VkGetQueueInfo(darkApplication* app, darkVulkan* vk, 
       VkQueueFamilyProperties* returnProperties, const VkQueueFlags flags)
 {
    dark_PrintLog("Getting queue infos!\n");
@@ -151,7 +151,7 @@ int dark_VkGetQueueInfo(dark_Application* app, dark_Vulkan* vk,
    return index;
 }
 
-int dark_VkCreateDevice(dark_Application* app, dark_Vulkan* vk)
+int dark_VkCreateDevice(darkApplication* app, darkVulkan* vk)
 {
    VkDeviceCreateInfo vkInfo;
    VkDeviceQueueCreateInfo vkQueue;
@@ -183,21 +183,21 @@ int dark_VkCreateDevice(dark_Application* app, dark_Vulkan* vk)
    return 0x0;
 }
 
-int dark_VkCreateSurface(dark_Application app, dark_Vulkan* vk)
+int dark_VkCreateSurface(darkApplication app, darkVulkan* vk)
 {
    return 0x0;
 }
 
-int dark_InitVulkan(dark_Application* app)
+int dark_InitVulkan(darkApplication* app)
 {
    dark_PrintLog("Initializing Vulkan!\n");
 
    if (NULL == app->vulkan)
    {
-      app->vulkan = MallocType(dark_Vulkan);
+      app->vulkan = MallocType(darkVulkan);
    }
 
-   dark_VkInitInstance(app, app->vulkan);
+   darkVkInitInstance(app, app->vulkan);
    dark_VkPickPhysicalDevice(app, app->vulkan);
    dark_VkCreateDevice(app, app->vulkan);
 

@@ -4,6 +4,6 @@
 #include"Types.h"
 #include"Utils.h"
 
-extern int dark_InitVulkan(dark_Application* app);
+extern int dark_InitVulkan(darkApplication* app);
 
 #endif //__darkness_vulkan_header__
