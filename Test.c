@@ -11,7 +11,7 @@ void MainLoop(void)
 int Main(int arc, char** arv)
 {
    float a = 4.0;
-   app.EngineLoop = &MainLoop;
+   //app.EngineLoop = &MainLoop;
 
    printf("%F\n", a);
 

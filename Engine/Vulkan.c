@@ -3,7 +3,7 @@
 
 int darkVkInitInstance(darkApplication* app, darkVulkan* vk)
 {
-   dark_PrintLog("Creating vulkan instance!\n");
+   darkPrintLog("Creating vulkan instance!\n");
 
    uint32_t apiVersion = 0;
    dark_VkCall(vkEnumerateInstanceVersion(&apiVersion));
@@ -82,7 +82,7 @@ const char* dark_VkGetDeviceTypeName(VkPhysicalDeviceType type)
 
 int dark_VkPickPhysicalDevice(darkApplication* app, darkVulkan* vk)
 {
-   dark_PrintLog("Picking physical device!\n");
+   darkPrintLog("Picking physical device!\n");
    
    uint32_t deviceCount = 0;
    uint32_t selectedDeviceIndex = 0;
@@ -126,7 +126,7 @@ int dark_VkPickPhysicalDevice(darkApplication* app, darkVulkan* vk)
 int dark_VkGetQueueInfo(darkApplication* app, darkVulkan* vk, 
       VkQueueFamilyProperties* returnProperties, const VkQueueFlags flags)
 {
-   dark_PrintLog("Getting queue infos!\n");
+   darkPrintLog("Getting queue infos!\n");
    
    int index = 0;
    uint32_t queueCount = 0;
@@ -190,7 +190,7 @@ int dark_VkCreateSurface(darkApplication app, darkVulkan* vk)
 
 int dark_InitVulkan(darkApplication* app)
 {
-   dark_PrintLog("Initializing Vulkan!\n");
+   darkPrintLog("Initializing Vulkan!\n");
 
    if (NULL == app->vulkan)
    {

@@ -6,7 +6,7 @@
 #include"Debug.h"
 
 
-int (*dark_PrintLog)(const char* format, ...) = &__darkPrintLogNull;
+int (*darkPrintLog)(const char* format, ...) = &__darkPrintLogNull;
 
 /// The actual logging function
 int __darkPrintLogOut(const char* format, ...)

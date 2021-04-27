@@ -7,7 +7,7 @@
 #define dark_VkCall(func) __darkVkCall(func, #func, __LINE__, __FILE__)
 #define dark_TimeBench(func) __dark_TimeBench(); func; __dark_TimeBench()
 
-extern int (*dark_PrintLog)(const char* format, ...);
+extern int (*darkPrintLog)(const char* format, ...);
 
 /// internal calls used in macros
 extern int __darkPrintLogOut(const char* fromat, ...);

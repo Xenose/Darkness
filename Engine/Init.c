@@ -6,8 +6,14 @@
 #include"Utils.h"
 #include"Init.h"
 
+/// If the application has not yet defined a loop function
+/// Darkness will fall back to this dummy function
+void __darkEmptyDummyEngineLoop(void)
+{
+}
+
 /// This is just the help info that gets printed when typing help
-void dark_PrintHelpInfo()
+void darkPrintHelpInfo()
 {
    printf("%s%s%s%s",
 	 "\n\nThese are the debug/launch commands for the darkness engine:\n\n",
@@ -29,8 +35,8 @@ void dark_ParseInputArgs(darkApplication* app, int arc, char** arv)
 	    case 'd':
 	       if (!strcmp(arv[i], "debug"))
 	       {
-		  dark_PrintLog = &__darkPrintLogOut;
-		  dark_PrintLog("Entering debug mode!\n");
+		  darkPrintLog = &__darkPrintLogOut;
+		  darkPrintLog("Entering debug mode!\n");
 		  break;
 	       }
 	       if (!strcmp(arv[i], "drun"))
@@ -41,14 +47,14 @@ void dark_ParseInputArgs(darkApplication* app, int arc, char** arv)
 	    case 'h':
 	       if (!strcmp(arv[i], "help"))
 	       {
-		  dark_PrintHelpInfo();
+		  darkPrintHelpInfo();
 		  exit(0);
 	       }
 	    case 'o':
 	       if (!strcmp(arv[i], "opengl"))
 	       {
 		  app->flags |= DARKNESS_USE_OPENGL;
-		  dark_PrintLog("Selected OpenGL mode for rendering\n");
+		  darkPrintLog("Selected OpenGL mode for rendering\n");
 		  break;
 	       }
 	 }
@@ -74,6 +80,12 @@ void darkCheckApplicationInfo(darkApplication* app)
    {
       app->windowSizeX = 1920;
       app->windowSizeY = 1080;
+   }
+
+   if (NULL == app->EngineLoop)
+   {
+      darkPrintLog("Engine loop not set, consider setting it so that your program can have some control\n");
+      app->EngineLoop = &__darkEmptyDummyEngineLoop;
    }
 }
 
@@ -137,18 +149,21 @@ int darkInitDarkness(darkApplication* app, int arc, char** arv)
    darkVertex2F right = { 1, -1 };
    darkVertex2F up = { 0, 1 };
 
-   while(1)
+   if (!(app->flags & DARKNESS_START_STOP))
    {
-      dark_ClearScreen(app);
-
-      dark_DrawTriangle(left, right, up);
-
-      dark_SwapBuffers(app);
-      glfwPollEvents();
-
-      if (glfwWindowShouldClose(app->pWindow) || app->flags & DARKNESS_START_STOP)
+      while(1)
       {
-	 goto LOOP_EXIT;
+	 dark_ClearScreen(app);
+	 app->EngineLoop();
+	 dark_DrawTriangle(left, right, up);
+
+	 dark_SwapBuffers(app);
+	 glfwPollEvents();
+
+	 if (glfwWindowShouldClose(app->pWindow))
+	 {
+	    goto LOOP_EXIT;
+	 }
       }
    }
 LOOP_EXIT:
