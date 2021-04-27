@@ -3,11 +3,16 @@
 #include<math.h>
 #include"IO.h"
 
+int darkGetFormatadedStringLength(const char32_t* format)
+{
+   return 0;
+}
 
-int darkPrintf(const uchar* format, ...)
+/// implementing a thread safe printf
+int darkPrintf(const char32_t* format, ...)
 {
    va_list args, argsCopy;
-   int fsl = strlen(format); /// The formated string length
+   int fsl;// = strlen(format); /// The formated string length
    int osl = 0; /// The output string lenght
 
    va_start(args, format);
@@ -15,49 +20,49 @@ int darkPrintf(const uchar* format, ...)
 
    for (int i = 0; i < fsl; i++)
    {
-      if('%' == format[i])
+      if(U'%' == format[i])
       {
 	 switch(format[++i])
 	 {
-	    case 'd':
-	    case 'i':
+	    case U'd':
+	    case U'i':
 	       osl += log10(va_arg(args, int));
 	       break;
-	    case 'u':
+	    case U'u':
 	       osl += log10(va_arg(args, unsigned int));
 	       break;
-	    case 'o':
+	    case U'o':
 	       break;
-	    case 'x':
+	    case U'x':
 	       break;
-	    case 'X':
+	    case U'X':
 	       break;
-	    case 'f':
+	    case U'F':
+	    case U'f':
+	       osl += log10(va_arg(args, double)) + 7;
 	       break;
-	    case 'F':
+	    case U'e':
 	       break;
-	    case 'e':
+	    case U'E':
 	       break;
-	    case 'E':
+	    case U'g':
 	       break;
-	    case 'g':
+	    case U'G':
 	       break;
-	    case 'G':
+	    case U'a':
 	       break;
-	    case 'a':
+	    case U'A':
 	       break;
-	    case 'A':
-	       break;
-	    case 'c':
+	    case U'c':
 	       osl++;
 	       break;
-	    case 's':
+	    case U's':
 	       break;
-	    case 'p':
+	    case U'p':
 	       break;
-	    case 'n':
+	    case U'n':
 	       break;
-	    case '%':
+	    case U'%':
 	       osl++;
 	       break;
 	 }

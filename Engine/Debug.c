@@ -29,7 +29,7 @@ int __darkPrintLogNull(const char* format, ...)
 
 // This will translate VkResult codes into actual readble text
 // for humans...
-const char* __dark_GetVkReturnCode(int code)
+const char* __darkGetVkReturnCode(int code)
 {
    switch(code)
    {
@@ -81,7 +81,7 @@ int __darkVkCall(int code, const char* funcName, uint32_t line, const char* file
 	    "	Function ::	", funcName, '\n',
 	    "	File Name ::	", fileName, '\n',
 	    "	Line Number ::	", line, '\n',
-	    "	Error Name ::	", __dark_GetVkReturnCode(code), '\n'
+	    "	Error Name ::	", __darkGetVkReturnCode(code), '\n'
 	 );
 
       return -0x1;

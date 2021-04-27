@@ -118,8 +118,8 @@ int dark_VkPickPhysicalDevice(darkApplication* app, darkVulkan* vk)
    }
 
    vk->physicalDevice = devices[selectedDeviceIndex];
-   free(devices);
-   free(properties);
+   darkFree(devices);
+   darkFree(properties);
    return 0x0;
 }
 
@@ -147,7 +147,7 @@ int dark_VkGetQueueInfo(darkApplication* app, darkVulkan* vk,
       }
    }
    
-   free(queueProperties);
+   darkFree(queueProperties);
    return index;
 }
 

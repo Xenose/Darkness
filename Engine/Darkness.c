@@ -4,4 +4,5 @@
 #include"Graphics.c"
 #include"Init.c"
 #include"Thread.c"
-#include"IO.h"
+#include"IO.c"
+#include"Memory.c"

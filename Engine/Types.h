@@ -1,6 +1,10 @@
 #ifndef __darkness_types_header__
 #define __darkness_types_header__
 
+#define __STD_UTF_16__
+#define __STD_UTF_32__
+
+#include<uchar.h>
 #include<stdint.h>
 #include<vulkan/vulkan.h>
 #include<GL/glew.h>
@@ -13,6 +17,9 @@
 #define DARKNESS_DEBUG_MODE 	0x04 // This flag will add additional debug functions to the code
 #define DARKNESS_NO_GRAPHICS	0x08 // Use the engine without any graphics
 
+#define DARKNESS_COLOR_RGB	0x01
+#define DARKNESS_COLOR_CMY	0x02
+
 typedef struct __darkVertex2F {
    float x, y;
 } darkVertex2F;
@@ -24,6 +31,35 @@ typedef struct __darkVertex3F {
 typedef struct __darkVertex4F {
    float x, y, z, a;
 } darkVertex4F;
+
+typedef struct __darkColor {
+   
+   unsigned char color_type;
+
+   union {
+      unsigned char r;
+      unsigned char c;
+      unsigned char h;
+   };
+
+   union {
+      unsigned char g;
+      unsigned char m;
+      unsigned char s;
+   };
+
+   union {
+      unsigned char b;
+      unsigned char y;
+      unsigned char l;
+   };
+
+   union {
+      unsigned char a;
+      unsigned char k;
+   };
+
+} darkColor;
 
 typedef struct __darkVulkan {
    VkInstance		instance;
@@ -53,6 +89,8 @@ typedef struct __darkApplication {
 
    int windowSizeX;
    int windowSizeY;
+
+   void (*EngineLoop)(void);
 } darkApplication;
 
 #endif //__darknes_types_header__
