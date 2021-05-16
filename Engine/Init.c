@@ -4,8 +4,8 @@
 #include"Vulkan.h"
 #include"Init.h"
 
-// Temporary headers
-// End of Temporary headers
+/* Temporary headers */
+/* End of Temporary headers */
 
 static struct option engCliOpt[] = {
    { "dryrun",		no_argument,		0,	'd' },
@@ -13,6 +13,11 @@ static struct option engCliOpt[] = {
    { "opengl",		no_argument,		0,	'O' },
    { "gpu-override",	required_argument,	0,	 0  },
 };
+
+/* 
+ * The parse the input args we use the getopt_long function 
+ * note if ported to windows this needs to be reimplemented
+ */
 
 void dks_ParseArgs(int arc, char** arv, struct dks_Info* dks)
 {
@@ -58,6 +63,9 @@ void dks_CheckInfo(struct dks_Info* dks)
       dks->engineVersion.patch = 1;
 }
 
+/* 
+ * The main function for this engine 
+ */
 int dks_InitDarkness(int arc, char** arv, struct dks_Info* dks)
 {
    dks_ParseArgs(arc, arv, dks);

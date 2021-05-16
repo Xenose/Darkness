@@ -8,6 +8,7 @@
 
 #define DARKNESS_FLAG_USE_OPENGL	0x1
 #define DARKNESS_FLAG_DRYRUN		0x2
+#define DARKNESS_FLAG_GPU_OVERRIDE	0x4
 
 #define DARKNESS_MODLE_TYPE_3D		0x1
 #define DARKNESS_MODLE_TYPE_2D		0x2
@@ -62,6 +63,10 @@ struct dks_Modle {
 struct dks_Sprite {
 };
 
+struct dks_Scene {
+   uint32_t id;
+};
+
 struct dks_VkPhysicalDevices {
    uint32_t 			count;
    uint32_t			index;
@@ -80,10 +85,6 @@ struct dks_Vulkan {
 };
 
 struct dks_SystemInfo {
-};
-
-struct dks_Scene {
-   uint32_t id;
 };
 
 struct dks_Info {
