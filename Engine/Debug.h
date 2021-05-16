@@ -1,18 +1,16 @@
 #ifndef __darkness_debug_header__
 #define __darkness_debug_header__
 
-#include<stdint.h>
-#include<stdio.h>
+#define DARKNESS_DEBUG_COMPILE
 
-#define dark_VkCall(func) __darkVkCall(func, #func, __LINE__, __FILE__)
-#define dark_TimeBench(func) __dark_TimeBench(); func; __dark_TimeBench()
+#include"Types.h"
 
-extern int (*darkPrintLog)(const char* format, ...);
+#ifdef DARKNESS_DEBUG_COMPILE
+   #define dks_LogCall(func) ___dks_internal_log_call(func, #func, __FILE__, __LINE__)
+#else
+   #define dks_LogCall(func) func
+#endif
 
-/// internal calls used in macros
-extern int __darkPrintLogOut(const char* fromat, ...);
-extern int __darkPrintLogNull(const char* fromat, ...);
-extern int __darkVkCall(int code, const char* funcName, uint32_t line, const char* fileName);
-extern void __dark_TimeBench();
+extern int ___dks_internal_log_call(intptr_t code, const char* fuName, const char* fiName, uint32_t line);
 
 #endif //__darkness_debug_header__

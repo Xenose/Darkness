@@ -1,184 +1,98 @@
-#include<stdlib.h>
-#include<stdio.h>
-#include<string.h>
-#include<ctype.h>
-#include"Debug.h"
+#include<getopt.h>
 #include"Utils.h"
+#include"IO.h"
+#include"Vulkan.h"
 #include"Init.h"
 
-/// If the application has not yet defined a loop function
-/// Darkness will fall back to this dummy function
-void __darkEmptyDummyEngineLoop(void)
-{
-}
+// Temporary headers
+// End of Temporary headers
 
-/// This is just the help info that gets printed when typing help
-void darkPrintHelpInfo()
-{
-   printf("%s%s%s%s",
-	 "\n\nThese are the debug/launch commands for the darkness engine:\n\n",
-	 "\thelp\t:: will list this help page\n\n",
-	 "\tdrun\t:: will exit the program without waithing for user input\n", /// debug run
-	 "\topengl\t:: will launch the engine in opengl mode\n");
-}
+static struct option engCliOpt[] = {
+   { "dryrun",		no_argument,		0,	'd' },
+   { "debug",		no_argument,		0,	'D' },
+   { "opengl",		no_argument,		0,	'O' },
+   { "gpu-override",	required_argument,	0,	 0  },
+};
 
-void dark_ParseInputArgs(darkApplication* app, int arc, char** arv)
+void dks_ParseArgs(int arc, char** arv, struct dks_Info* dks)
 {
-   if (arc > 1)
-   {
-      for (int i = 1; i < arc; i++)
-      {
-	 // sorting the commands by first char to reduce if statments
-	 switch(arv[i][0])
-	 {
-	    default:
-	    case 'd':
-	       if (!strcmp(arv[i], "debug"))
-	       {
-		  darkPrintLog = &__darkPrintLogOut;
-		  darkPrintLog("Entering debug mode!\n");
-		  break;
-	       }
-	       if (!strcmp(arv[i], "drun"))
-	       {
-		  app->flags |= DARKNESS_START_STOP;
-		  break;
-	       }
-	    case 'h':
-	       if (!strcmp(arv[i], "help"))
-	       {
-		  darkPrintHelpInfo();
-		  exit(0);
-	       }
-	    case 'o':
-	       if (!strcmp(arv[i], "opengl"))
-	       {
-		  app->flags |= DARKNESS_USE_OPENGL;
-		  darkPrintLog("Selected OpenGL mode for rendering\n");
-		  break;
-	       }
-	 }
+   int arg;
+   int index = 0;
+
+   while (-1 != (arg = getopt_long(arc, arv, "dDO", engCliOpt, &index))) {
+      switch(arg) {
+	 case 0:
+	    break;
+	 case 'd':
+	    dks->flags |= DARKNESS_FLAG_DRYRUN;
+	    dks_Puts("dryrun");
+	    break;
+	 case 'D':
+	    dks_Puts("using debug mode");
+	    break;
+	 case 'O':
+	    dks->flags |= DARKNESS_FLAG_USE_OPENGL;
+	    dks_Puts("using opengl");
+	    break;
       }
    }
 }
 
-/// This function is for checking all the basic information and
-/// fixing any basic errors
-void darkCheckApplicationInfo(darkApplication* app)
+void dks_CheckInfo(struct dks_Info* dks)
 {
-   if (NULL == app->pName)
-   {
-      app->pName = dark_CreateString("default");
+   if (NULL == dks->pName)
+      dks->pName = dks_Crestr("No Name");
+
+   if (NULL == dks->pEngineName)
+      dks->pEngineName = dks_Crestr("Darkness");
+
+   if (0 >= dks->windowSizeX || 0 >= dks->windowSizeY) {
+      dks->windowSizeX = 1920;
+      dks->windowSizeY = 1080;
    }
 
-   if (NULL == app->pEngineName)
-   {
-      app->pEngineName = dark_CreateString("Darkness");
-   }
-
-   if (0 >= app->windowSizeX || 0 >= app->windowSizeY)
-   {
-      app->windowSizeX = 1920;
-      app->windowSizeY = 1080;
-   }
-
-   if (NULL == app->EngineLoop)
-   {
-      darkPrintLog("Engine loop not set, consider setting it so that your program can have some control\n");
-      app->EngineLoop = &__darkEmptyDummyEngineLoop;
-   }
-}
-
-int darkInitVulkan(darkApplication* app, int arc, char** arv)
-{
-   /// the vulkan init function
-   dark_InitVulkan(app);
-   app->pWindow = glfwCreateWindow(app->windowSizeX, app->windowSizeY, app->pName, NULL, NULL);
-   glfwGetWindowSize(app->pWindow, &app->windowSizeX, &app->windowSizeY);
+   if (0 == dks->version.major && 0 == dks->version.minor && 0 == dks->version.patch)
+      dks->version.patch = 1;
    
-   return 0x0;
+   if (0 == dks->engineVersion.major && 0 == dks->engineVersion.minor && 0 == dks->engineVersion.patch)
+      dks->engineVersion.patch = 1;
 }
 
-int darkInitOpenGL(darkApplication* app, int arc, char** arv)
+int dks_InitDarkness(int arc, char** arv, struct dks_Info* dks)
 {
-   app->pWindow = glfwCreateWindow(app->windowSizeX, app->windowSizeY, app->pName, NULL, NULL);
-   glfwMakeContextCurrent(app->pWindow);
+   dks_ParseArgs(arc, arv, dks);
+   dks_CheckInfo(dks);
 
-   if (GLEW_OK != glewInit())
-   {
-      return -0x1;
-   }
+   if (GLFW_TRUE != dks_LogCall(glfwInit()))
+      goto ERROR_EXIT;
 
-   glfwGetWindowSize(app->pWindow, &app->windowSizeX, &app->windowSizeY);
-   glViewport(0, 0, app->windowSizeX, app->windowSizeY);
-   return 0x0;
-}
+   if (GLFW_TRUE != dks_LogCall(glfwVulkanSupported()))
+      dks->flags |= DARKNESS_FLAG_USE_OPENGL; 
 
-int darkInitDarkness(darkApplication* app, int arc, char** arv)
-{
-   dark_ParseInputArgs(app, arc, arv);
+   if (0 != dks_LogCall(dks_InitVulkan(dks)))
+      dks->flags |= DARKNESS_FLAG_USE_OPENGL; 
+   
+   if (DARKNESS_FLAG_USE_OPENGL & ~dks->flags)
+      glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+   
+   dks->pWindow = glfwCreateWindow(dks->windowSizeX, dks->windowSizeY, dks->pName, NULL, NULL);
 
-   if (!glfwInit())
-   {
-      puts("[ FAITAL ERROR ] :: failed to start glfw!");
-      goto EXIT_ERROR_0x01;
-   }
+   if (NULL == dks->pWindow)
+      goto ERROR_TERMINATE_GLFW;
 
-   darkCheckApplicationInfo(app);
- 
-   /// if vulkan isn't supported then opengl will take over 
-   if (!glfwVulkanSupported())
-   {
-      app->flags |= DARKNESS_USE_OPENGL;
-      puts("[ ERROR ] :: No vulkan support falling back to opengl");
-   }
-   else if (!(app->flags & DARKNESS_USE_OPENGL))
-   {
-      darkInitVulkan(app, arc, arv);
-   }
-   else
-   {
-      if (0x0 != darkInitOpenGL(app, arc, arv))
-	 goto EXIT_ERROR_0x03;
-   }
+   if (DARKNESS_FLAG_USE_OPENGL & dks->flags)
+      glfwMakeContextCurrent(dks->pWindow);
 
-   InitGraphicsCommands(app);
 
-   /// TODO :: Remove this
-   darkVertex2F left = { -1, -1 };
-   darkVertex2F right = { 1, -1 };
-   darkVertex2F up = { 0, 1 };
-
-   if (!(app->flags & DARKNESS_START_STOP))
-   {
-      while(1)
-      {
-	 dark_ClearScreen(app);
-	 app->EngineLoop();
-	 dark_DrawTriangle(left, right, up);
-
-	 dark_SwapBuffers(app);
+   if (DARKNESS_FLAG_DRYRUN & ~dks->flags) {
+      while(!glfwWindowShouldClose(dks->pWindow)) {
 	 glfwPollEvents();
-
-	 if (glfwWindowShouldClose(app->pWindow))
-	 {
-	    goto LOOP_EXIT;
-	 }
       }
    }
-LOOP_EXIT:
-   
-   return 0x0;
 
-EXIT_ERROR_0x03:
-   /// TODO :: Cleanup this
-   free(app->pName);
-   free(app->pEngineName);
-   app->windowSizeX = 0;
-   app->windowSizeY = 0;
-   glfwDestroyWindow(app->pWindow);
-EXIT_ERROR_0x02:
+   return 0x0;
+ERROR_TERMINATE_GLFW:
    glfwTerminate();
-EXIT_ERROR_0x01:
+ERROR_EXIT:
    return -0x1;
 }

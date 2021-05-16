@@ -1,111 +1,93 @@
-#include<unistd.h>
-#include<time.h>
 #include<stdio.h>
-#include<stdarg.h>
-#include"Types.h"
+#include<string.h>
 #include"Debug.h"
 
-
-int (*darkPrintLog)(const char* format, ...) = &__darkPrintLogNull;
-
-/// The actual logging function
-int __darkPrintLogOut(const char* format, ...)
+// Gets the return codes name the func name and code
+const char* ___dks_GetRetName(const char* fuName, intptr_t code)
 {
-   va_list args;
-   va_start(args, format);
 
-   write(1, "[   \033[93mLOG\033[0m   ] ", 22);
-   printf(format, args);
-   
-   va_end(args);
-   return 0x0;
-}
-
-/// A dummy function to void the logging output
-int __darkPrintLogNull(const char* format, ...)
-{
-   return 0x0;
-}
-
-// This will translate VkResult codes into actual readble text
-// for humans...
-const char* __darkGetVkReturnCode(int code)
-{
-   switch(code)
-   {
-      case VK_ERROR_FRAGMENTED_POOL:
-	 return "VK_ERROR_FRAGMENTED_POOL";
-      case VK_ERROR_FORMAT_NOT_SUPPORTED:
-	 return "VK_ERROR_FORMAT_NOT_SUPPORTED";
-      case VK_ERROR_TOO_MANY_OBJECTS:
-	 return "VK_ERROR_TOO_MANY_OBJECTS";
-      case VK_ERROR_INCOMPATIBLE_DRIVER:
-	 return "VK_ERROR_INCOMPATIBLE_DRIVER";
-      case VK_ERROR_FEATURE_NOT_PRESENT:
-	 return "VK_ERROR_FEATURE_NOT_PRESENT";
-      case VK_ERROR_EXTENSION_NOT_PRESENT:
-	 return "VK_ERROR_EXTENSION_NO_PRESENT";
-      case VK_ERROR_LAYER_NOT_PRESENT:
-	 return "VK_ERROR_MEMORY_MAP_FAILED";
-      case VK_ERROR_MEMORY_MAP_FAILED:
-	 return "VK_ERROR_MEMORY_MAP_FAILED";
-      case VK_ERROR_DEVICE_LOST:
-	 return "VK_ERROR_DEVICE_LOST";
-      case VK_ERROR_INITIALIZATION_FAILED:
-	 return "VK_ERROR_INITIALIZATION_FAILED";
-      case VK_ERROR_OUT_OF_DEVICE_MEMORY:
-	 return "VK_ERROR_OUT_OF_DEVICE_MEMORY";
-      case VK_ERROR_OUT_OF_HOST_MEMORY:
-	 return "VK_ERROR_OUT_OF_HOST_MEMORY";
-      case VK_SUCCESS:
-	 return "VK_SUCCESS";
-      case VK_NOT_READY:
-	 return "VK_NOT_READY";
-      case VK_TIMEOUT:
-	 return "VK_TIMEOUT";
-      case VK_EVENT_SET:
-	 return "VK_EVENT_SET";
-      case VK_INCOMPLETE:
-	 return "VK_INCOMPLETE";
+   if (0 == strncmp("glfw", fuName, 4)) {
+      
+      switch(code){
+	 case GLFW_TRUE:
+	    return "\033[32mGLFW_TRUE\033[0m";
+	 case GLFW_FALSE:
+	    return "\033[31GLFW_FALSE\033[0m";
+      } 
+      goto END;
    }
 
-   return "Unkown code";
-}
-
-int __darkVkCall(int code, const char* funcName, uint32_t line, const char* fileName)
-{
-   if (VK_SUCCESS != code)
-   {
-      printf("\n%s%d%s\n%s%s%c%s%s%c%s%u%c%s%s%c\n",
-	    "[ \033[31mVULKAN ERROR\033[0m :: ", code, " ]\n",
-	    "	Function ::	", funcName, '\n',
-	    "	File Name ::	", fileName, '\n',
-	    "	Line Number ::	", line, '\n',
-	    "	Error Name ::	", __darkGetVkReturnCode(code), '\n'
-	 );
-
-      return -0x1;
+   if (0 == strncmp("vk", fuName, 2)) {
+      
+      switch(code){
+	 case VK_ERROR_FRAGMENTED_POOL:
+	    return "VK_ERROR_FRAGMENTED_POOL";
+	 case VK_ERROR_FORMAT_NOT_SUPPORTED:
+	    return "VK_ERROR_FORMAT_NOT_SUPPORTED";
+	 case VK_ERROR_TOO_MANY_OBJECTS:
+	    return "VK_ERROR_TO_MANY_OBJECTS";
+	 case VK_ERROR_INCOMPATIBLE_DRIVER:
+	    return "VK_ERROR_INCOMPATIBLE_DRIVER";
+	 case VK_ERROR_FEATURE_NOT_PRESENT:
+	    return "VK_ERROR_FEATURE_NOT_PRESENT";
+	 case VK_ERROR_EXTENSION_NOT_PRESENT:
+	    return "VK_ERROR_EXTENSION_NOT_PRESENT";
+	 case VK_ERROR_LAYER_NOT_PRESENT:
+	    return "VK_ERROR_LAYER_NOT_PRESENT";
+	 case VK_ERROR_MEMORY_MAP_FAILED:
+	    return "VK_ERROR_MEMORY_MAP_FAILED";
+	 case VK_ERROR_DEVICE_LOST:
+	    return "VK_ERROR_DEVICE_LOST";
+	 case VK_ERROR_INITIALIZATION_FAILED:
+	    return "VK_ERROR_INITIALIIZATION_FAILED";
+	 case VK_ERROR_OUT_OF_DEVICE_MEMORY:
+	    return "VK_ERROR_OUT_OF_DEVICE_MEMORY";
+	 case VK_ERROR_OUT_OF_HOST_MEMORY:
+	    return "VK_ERROR_OUT_OF_HOST_MEMORY";
+	 case VK_SUCCESS:
+	    return "\033[32mVK_SUCCESS\033[0m";
+	 case VK_NOT_READY:
+	    return "VK_NOT_READY";
+	 case VK_TIMEOUT:
+	    return "VK_TIMEOUT";
+	 case VK_EVENT_SET:
+	    return "VK_EVENT_SET";
+	 case VK_EVENT_RESET:
+	    return "VK_EVENT_RESET";
+	 case VK_INCOMPLETE:
+	    return "VK_INCOMPLETE";
+      } 
+      goto END;
    }
 
-   printf("[ \033[32mSUCCESS\033[0m ] %s\n", funcName);
+   if (0 == strncmp("dks_", fuName, 4)) {
+      
+      switch(code){
+	 case 0:
+	    return "\033[32mDARKNESS NO ERROR\033[0m";
+	 case -1:
+	    return "\033[31DARKNESS ERROR\033[0m";
+      } 
+      goto END;
+   }
 
-   return 0x0;
+   if (NULL == (void*)code)
+   {
+      return "NULL";
+   }
+
+END:
+   return "Not found\n";
 }
 
-// The benchmark time
-struct timespec __oldTime;
 
-void __dark_TimeBench()
+int ___dks_internal_log_call(intptr_t code, const char* fuName, const char* fiName, uint32_t line)
 {
-  if (0 < __oldTime.tv_nsec)
-  {
-     struct timespec newTime;
-     clock_gettime(CLOCK_REALTIME, &newTime);
-
-     printf("[ TimeBench ] :: It took %ld nano second to run!\n", (newTime.tv_nsec - __oldTime.tv_nsec) / 100);
-     __oldTime.tv_nsec = 0;
-     return;
-  }
-
-  clock_gettime(CLOCK_REALTIME, &__oldTime);
+   fprintf(stderr, "\n%s\n\n%s%s\n%s%s\n%s%u\n%s%s\n\n",
+	 " [ \033[32mFUNCTION LOG\033[0m ]",
+	 "\tFunction Name ::\t", fuName,
+	 "\tFile Name     ::\t", fiName,
+	 "\tLine Number   ::\t", line,
+	 "\tReturn Code   ::\t", ___dks_GetRetName(fuName, code));
+   return code;
 }

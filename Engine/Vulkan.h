@@ -2,8 +2,7 @@
 #define __darkness_vulkan_header__
 
 #include"Types.h"
-#include"Utils.h"
 
-extern int dark_InitVulkan(darkApplication* app);
+extern int dks_InitVulkan(struct dks_Info* dks);
 
 #endif //__darkness_vulkan_header__

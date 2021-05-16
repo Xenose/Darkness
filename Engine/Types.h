@@ -1,96 +1,104 @@
 #ifndef __darkness_types_header__
 #define __darkness_types_header__
-
-#define __STD_UTF_16__
-#define __STD_UTF_32__
-
 #include<uchar.h>
 #include<stdint.h>
 #include<vulkan/vulkan.h>
 #include<GL/glew.h>
 #include<GLFW/glfw3.h>
 
-#define Main main // I like when functions uses the same style
+#define DARKNESS_FLAG_USE_OPENGL	0x1
+#define DARKNESS_FLAG_DRYRUN		0x2
 
-#define DARKNESS_USE_OPENGL 	0x01 // This flag forces darkness to use opengl instead of vulkan
-#define DARKNESS_START_STOP 	0x02 // This flag will start the program without being stuck in loop
-#define DARKNESS_DEBUG_MODE 	0x04 // This flag will add additional debug functions to the code
-#define DARKNESS_NO_GRAPHICS	0x08 // Use the engine without any graphics
+#define DARKNESS_MODLE_TYPE_3D		0x1
+#define DARKNESS_MODLE_TYPE_2D		0x2
+#define DARKNESS_MODLE_TYPE_HALF	0x4
 
-#define DARKNESS_COLOR_RGB	0x01
-#define DARKNESS_COLOR_CMY	0x02
+struct dks_Vector64x2 {
+   int64_t x;
+   int64_t y;
+};
 
-typedef struct __darkVertex2F {
-   float x, y;
-} darkVertex2F;
+struct dks_Vector64x3 {
+   int64_t x;
+   int64_t y;
+   int64_t z;
+};
 
-typedef struct __darkVertex3F {
-   float x, y, z;
-} darkVertex3F;
+struct dks_Vector64x4 {
+   int64_t x;
+   int64_t y;
+   int64_t z;
+   int64_t a;
+};
 
-typedef struct __darkVertex4F {
-   float x, y, z, a;
-} darkVertex4F;
+struct dks_Vector128x2 {
+   __int128_t x;
+   __int128_t y;
+};
 
-typedef struct __darkColor {
+struct dks_Vector128x3 {
+   __int128_t x;
+   __int128_t y;
+   __int128_t z;
+};
+
+struct dks_Vector128x4 {
+   __int128_t x;
+   __int128_t y;
+   __int128_t z;
+   __int128_t a;
+};
+
+struct dks_Version {
+   uint32_t major;
+   uint32_t minor;
+   uint32_t patch;
+};
+
+struct dks_Modle {
+   struct dks_Vector128x3 position;
+};
+
+struct dks_Sprite {
+};
+
+struct dks_VkPhysicalDevices {
+   uint32_t 			count;
+   uint32_t			index;
+   VkPhysicalDevice*		pDevices;
+   VkPhysicalDeviceProperties*	pProperties;
+   VkPhysicalDeviceFeatures*	pFeatures;
+};
+
+struct dks_Vulkan {
+   struct dks_Version version;
    
-   unsigned char color_type;
+   VkInstance			instance;
+   struct dks_VkPhysicalDevices physical;
+   VkDevice			device;
+   VkSurfaceKHR 		surface;
+};
 
-   union {
-      unsigned char r;
-      unsigned char c;
-      unsigned char h;
-   };
+struct dks_SystemInfo {
+};
 
-   union {
-      unsigned char g;
-      unsigned char m;
-      unsigned char s;
-   };
+struct dks_Scene {
+   uint32_t id;
+};
 
-   union {
-      unsigned char b;
-      unsigned char y;
-      unsigned char l;
-   };
+struct dks_Info {
+   
+   uint64_t flags;
+   struct dks_Vulkan* vulkan;
 
-   union {
-      unsigned char a;
-      unsigned char k;
-   };
+   char* pName;
+   char* pEngineName;
+   struct dks_Version version;
+   struct dks_Version engineVersion;
 
-} darkColor;
-
-typedef struct __darkVulkan {
-   VkInstance		instance;
-   VkPhysicalDevice	physicalDevice;
-   VkDevice		graphicsDevice;
-   VkQueue		graphicsQueue;
-   VkSurfaceKHR		surface;
-   VkCommandPool	commandPool;
-} darkVulkan;
-
-// Information about the system useful to the engine
-typedef struct __darkSystemInfo {
-   unsigned short	cpuCoreCount; // The total number of cores in the system
-   unsigned short	cpuThreadCount;	// The total amount of thread in the system
-   unsigned int		maxMemory; // The total amount of memory in the system
-} darkSystemInfo;
-
-// The main information for the application/game
-typedef struct __darkApplication {
-  
-   uint32_t flags;
-   darkVulkan* vulkan;
-
-   char*	pName;
-   char*	pEngineName;
-   GLFWwindow*	pWindow;
-
+   GLFWwindow* pWindow;
    int windowSizeX;
    int windowSizeY;
+};
 
-   void (*EngineLoop)(void);
-} darkApplication;
-
-#endif //__darknes_types_header__
+#endif //__darkness_types_header__

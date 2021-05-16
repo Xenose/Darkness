@@ -1,205 +1,133 @@
 #include"Debug.h"
+#include"Utils.h"
 #include"Vulkan.h"
 
-int darkVkInitInstance(darkApplication* app, darkVulkan* vk)
+/// Temporary headers
+#include<stdio.h>
+/// End of temporary headers
+
+int dks_CreateVkInstance(struct dks_Info* dks, struct dks_Vulkan* vk)
 {
-   darkPrintLog("Creating vulkan instance!\n");
+   VkApplicationInfo app;
+   VkInstanceCreateInfo info;
 
-   uint32_t apiVersion = 0;
-   dark_VkCall(vkEnumerateInstanceVersion(&apiVersion));
-
-   if (VK_MAKE_VERSION(1,2,0) > apiVersion)
-   {
-      return -0x1;
+   if (0 == vk->version.major && 0 == vk->version.minor && 0 == vk->version.patch) {
+      vk->version.major = 1;
+      vk->version.minor = 2;
+      vk->version.patch = 0;
    }
 
-   VkApplicationInfo vkApp;
-   VkInstanceCreateInfo vkInfo;
+   app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+   app.pNext = NULL;
+   app.pApplicationName = dks->pName;
+   app.pEngineName = dks->pEngineName;
+   app.applicationVersion = VK_MAKE_VERSION(
+	 dks->version.major, dks->version.minor, dks->version.patch);
+   app.engineVersion = VK_MAKE_VERSION(
+	 dks->engineVersion.major, dks->engineVersion.minor, dks->engineVersion.patch);
+   app.apiVersion = VK_MAKE_VERSION(
+	 vk->version.major, vk->version.minor, vk->version.patch);
 
-   vkApp.sType =			VK_STRUCTURE_TYPE_APPLICATION_INFO;
-   vkApp.pNext =			NULL;
-   vkApp.pApplicationName =		app->pName;
-   vkApp.pEngineName =			app->pEngineName;
-   vkApp.applicationVersion =		VK_MAKE_VERSION(0,0,1);
-   vkApp.engineVersion =		VK_MAKE_VERSION(0,0,1);
-   vkApp.apiVersion =			VK_MAKE_VERSION(1,2,0);
+   info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+   info.pNext = NULL;
+   info.flags = 0x0;
+   info.pApplicationInfo = &app;
+   info.enabledLayerCount = 0;
+   info.ppEnabledLayerNames = NULL;
+   info.enabledExtensionCount = 0;
+   info.ppEnabledExtensionNames = NULL;
 
-   vkInfo.sType =			VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-   vkInfo.pNext =			NULL;
-   vkInfo.flags =			0x0;
-   vkInfo.pApplicationInfo =		&vkApp;
-   vkInfo.ppEnabledExtensionNames =	NULL;
-   vkInfo.enabledExtensionCount = 	0;
-   vkInfo.ppEnabledLayerNames =		NULL;
-   vkInfo.enabledLayerCount = 		0;
+   if (VK_SUCCESS != dks_LogCall(vkCreateInstance(&info, NULL, &vk->instance)))
+      goto ERROR_EXIT;
 
-   dark_VkCall(vkCreateInstance(&vkInfo, NULL, &vk->instance));
-
-   return 0x0;
+   return 0;
+ERROR_EXIT:
+   return -1;
 }
 
-/// Getting the company name for logging and other uses cases maybe?
-const char* dark_VkGetNameFromVendorIDWithColor(uint32_t id)
+const char* dks_GetVendorColour(uint32_t id)
 {
-   switch(id)
-   {
-      case 0x1002:
-	return "\033[31mAMD\033[0m";
-      case 0x1010:
-	return "\033[31mImgTec\033[0m";
-      case 0x10DE:
-	return "\033[32mNVIDIA\033[0m"; 
-      case 0x13B5:
-	return "\033[31mARM\033[0m";
-      case 0x5143:
-	return "\033[31mQualcomm\033[0m";
-      case 0x8086:
-	return "\033[36mIntel\033[0m";
+   switch(id) {
+      case 0x1002: // AMD
+	 return "\033[31m";
+      case 0x1010: // ImgTec
+	 return "\033[35m";
+      case 0x10DE: // NVidia
+	 return "\033[32m";
+      case 0x13B5: // ARM
+	 return "\033[91m";
+      case 0x5143: // Qualcomm
+	 return "\033[94m";
+      case 0x8086: // Intel
+	 return "\033[34m";
    }
 
-   return "Unkowned";
+   return "";
 }
 
-/// A function for getting a human readble name on the type of graphics used.
-const char* dark_VkGetDeviceTypeName(VkPhysicalDeviceType type)
+int dks_GetVkPhysicalDevices(struct dks_Info* dks, struct dks_Vulkan* vk, struct dks_VkPhysicalDevices* dev)
 {
-   switch ((uint32_t)type)
-   {
-      case 0:
-	 return "OTHER";
-      case 1:
-	 return "ITEGRATED";
-      case 2:
-	 return "DISCRETE";
-      case 3:
-	 return "VIRTUAL";
-      case 4:
-	 return "CPU";
-   }
+   if (VK_SUCCESS != dks_LogCall(vkEnumeratePhysicalDevices(vk->instance, &dev->count, NULL)))
+      goto ERROR_EXIT;
 
-   return "unkowned";
-}
+   dev->pDevices = dks_MallocTypes(VkPhysicalDevice, dev->count);
+   dev->pProperties = dks_MallocTypes(VkPhysicalDeviceProperties, dev->count);
+   dev->pFeatures = dks_MallocTypes(VkPhysicalDeviceFeatures, dev->count);
 
-int dark_VkPickPhysicalDevice(darkApplication* app, darkVulkan* vk)
-{
-   darkPrintLog("Picking physical device!\n");
+   if (NULL == dev->pDevices)
+      goto ERROR_EXIT;
    
-   uint32_t deviceCount = 0;
-   uint32_t selectedDeviceIndex = 0;
+   if (VK_SUCCESS != dks_LogCall(vkEnumeratePhysicalDevices(vk->instance, &dev->count, dev->pDevices)))
+	 goto ERROR_FREE_DEVICES;
 
-   VkPhysicalDevice* devices = NULL;
-   VkPhysicalDeviceProperties* properties = NULL;
-   
-   dark_VkCall(vkEnumeratePhysicalDevices(vk->instance, &deviceCount, NULL));
+   for (uint32_t i = 0; i < dev->count; i++) {
+      vkGetPhysicalDeviceProperties(dev->pDevices[i], &dev->pProperties[i]);
+      vkGetPhysicalDeviceFeatures(dev->pDevices[i], &dev->pFeatures[i]);
 
-   devices = MallocTypes(VkPhysicalDevice, deviceCount);
-   properties = MallocTypes(VkPhysicalDeviceProperties, deviceCount);
-
-   dark_VkCall(vkEnumeratePhysicalDevices(vk->instance, &deviceCount, devices));
-
-   for (int i = 0; i < deviceCount; i++)
-   {
-      vkGetPhysicalDeviceProperties(devices[i], &properties[i]);
-   } 
-
-   /// TODO :: Add a compilation flag to remove this on release versions 
-   for (int i = 0; i < deviceCount; i++)
-   {
-      /// I want something cleaner...
-      /// printing out the graphics info to stdout
-      printf("\n%s%s%s%s%s%X%s%s%X%s%s%s%s%s%s%s\n",
-	    "[ \033[35mDEVICE INFO\033[0m ] ", properties[i].deviceName, 
-	    selectedDeviceIndex == i ? "\t\t[   \033[32mSelected\033[0m   ] " : "\t\t[ \033[31mNot Selected\033[0m ] ", 
-	    "\n\n",
-	    "\tVulkan API Version\t: 0x", properties[i].apiVersion, "\n",
-	    "\tDriver Version\t\t: 0x", properties[i].driverVersion, "\n",
-	    "\tManufacture\t\t: ", dark_VkGetNameFromVendorIDWithColor(properties[i].vendorID), "\n",
-	    "\tDevice type\t\t: ", dark_VkGetDeviceTypeName(properties[i].deviceType), "\n");
+      printf("\n%s%u%s%s%s%s%s\n",
+	    " [ PHYSICAL DEVICE :: ", i, " ]\n\n",
+	    "\tDevice Name :\t", dks_GetVendorColour(dev->pProperties[i].vendorID), 
+	    dev->pProperties[i].deviceName, "\033[0m\n");
    }
 
-   vk->physicalDevice = devices[selectedDeviceIndex];
-   darkFree(devices);
-   darkFree(properties);
-   return 0x0;
+   return 0;
+ERROR_FREE_DEVICES:
+   dks_Free(dev->pDevices);
+   dks_Free(dev->pProperties);
+   dks_Free(dev->pFeatures);
+   dev->count = 0;
+ERROR_EXIT:
+   return -1;
 }
 
-int dark_VkGetQueueInfo(darkApplication* app, darkVulkan* vk, 
-      VkQueueFamilyProperties* returnProperties, const VkQueueFlags flags)
+int dks_SelectVkPhysicalDevice(struct dks_Info* dks, struct dks_Vulkan* vk, struct dks_VkPhysicalDevices* dev)
 {
-   darkPrintLog("Getting queue infos!\n");
+   dev->index = 0;
+   return 0;
+}
+
+int dks_CreateVkDevice(struct dks_Info* dks, struct dks_Vulkan* vk, struct dks_VkPhysicalDevices* dev)
+{
+   VkDeviceCreateInfo devInfo;
+   return 0;
+}
+
+int dks_InitVulkan(struct dks_Info* dks)
+{
+   if (NULL == dks->vulkan)
+      dks->vulkan = dks_MallocType(struct dks_Vulkan);
+
+   if (0 != dks_LogCall(dks_CreateVkInstance(dks, dks->vulkan)))
+      goto ERROR_EXIT;
+
+   if (0 != dks_LogCall(dks_GetVkPhysicalDevices(dks, dks->vulkan, &dks->vulkan->physical)))
+      goto ERROR_EXIT;
    
-   int index = 0;
-   uint32_t queueCount = 0;
-   VkQueueFamilyProperties* queueProperties;
+   if (0 != dks_LogCall(dks_SelectVkPhysicalDevice(dks, dks->vulkan, &dks->vulkan->physical)))
+      goto ERROR_EXIT;
 
-   vkGetPhysicalDeviceQueueFamilyProperties(vk->physicalDevice, &queueCount, NULL);
-   queueProperties = MallocTypes(VkQueueFamilyProperties, queueCount);
-   
-   vkGetPhysicalDeviceQueueFamilyProperties(vk->physicalDevice, &queueCount, queueProperties);
-
-   for (int i = 0; i < queueCount; i++)
-   {
-      if (flags & queueProperties[i].queueFlags)
-      {
-	 *returnProperties = queueProperties[i];
-	 index = i;
-	 break;
-      }
-   }
-   
-   darkFree(queueProperties);
-   return index;
+   return 0;
+ERROR_EXIT:
+   return -1;
 }
 
-int dark_VkCreateDevice(darkApplication* app, darkVulkan* vk)
-{
-   VkDeviceCreateInfo vkInfo;
-   VkDeviceQueueCreateInfo vkQueue;
-   VkQueueFamilyProperties queueProperties;
-
-   float queuePriority = 1;
-   int queueFamilyIndex = dark_VkGetQueueInfo(app, vk, &queueProperties, VK_QUEUE_GRAPHICS_BIT);
-
-   vkQueue.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-   vkQueue.pNext = NULL;
-   vkQueue.flags = 0x0;
-   vkQueue.queueFamilyIndex = queueFamilyIndex;
-   vkQueue.queueCount = 1;
-   vkQueue.pQueuePriorities = &queuePriority;
-
-   vkInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-   vkInfo.pNext = NULL;
-   vkInfo.flags = 0x0;
-   vkInfo.enabledLayerCount = 0;
-   vkInfo.ppEnabledLayerNames = NULL;
-   vkInfo.enabledExtensionCount = 0;
-   vkInfo.ppEnabledExtensionNames = NULL;
-   vkInfo.pQueueCreateInfos = &vkQueue;
-   vkInfo.queueCreateInfoCount = 1;
-   vkInfo.pEnabledFeatures = NULL;
-
-   dark_VkCall(vkCreateDevice(vk->physicalDevice, &vkInfo, NULL, &vk->graphicsDevice));
-   vkGetDeviceQueue(vk->graphicsDevice, queueFamilyIndex, 0, &vk->graphicsQueue);
-   return 0x0;
-}
-
-int dark_VkCreateSurface(darkApplication app, darkVulkan* vk)
-{
-   return 0x0;
-}
-
-int dark_InitVulkan(darkApplication* app)
-{
-   darkPrintLog("Initializing Vulkan!\n");
-
-   if (NULL == app->vulkan)
-   {
-      app->vulkan = MallocType(darkVulkan);
-   }
-
-   darkVkInitInstance(app, app->vulkan);
-   dark_VkPickPhysicalDevice(app, app->vulkan);
-   dark_VkCreateDevice(app, app->vulkan);
-
-   return 0x0;
-}

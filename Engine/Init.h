@@ -1,8 +1,8 @@
 #ifndef __darkness_init_header__
 #define __darkness_init_header__
 #include"Types.h"
+#include"Debug.h"
 
-// The main function for the engine
-extern int darkInitDarkness(darkApplication* app, int arc, char** arv);
+extern int dks_InitDarkness(int arc, char** arv, struct dks_Info* dks);
 
 #endif //__darkness_init_header__
