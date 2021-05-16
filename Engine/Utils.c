@@ -10,46 +10,55 @@ size_t __dks_Strlen8(const char* text)
 {
    size_t i = 0;
    while('\0' != text[i++]) {}
-   return i;
+   return i + 1;
 }
 
 size_t __dks_Strlen16(const char16_t* text)
 {
    size_t i = 0;
    while(u'\0' != text[i++]) {}
-   return i;
+   return i + 1;
 }
 
 size_t __dks_Strlen32(const char32_t* text)
 {
    size_t i = 0;
    while(U'\0' != text[i++]) {}
-   return i;
+   return i + 1;
 }
 
 /// The strcpy functions
 
 char* __dks_Strcpy8(char* dst, char* src)
 {
-   for (uint32_t i = 0; '\0' != src[i]; i++) {
+   uint32_t i;
+   for (i = 0; '\0' != src[i]; i++) {
       dst[i] = src[i];
    }
+   
+   dst[i] = '\0';
    return dst;
 }
 
 char16_t* __dks_Strcpy16(char16_t* dst, char16_t* src)
 {
-   for (uint32_t i = 0; '\0' != src[i]; i++) {
+   uint32_t i;
+   for (i = 0; u'\0' != src[i]; i++) {
       dst[i] = src[i];
    }
+
+   dst[i] = u'\0';
    return dst;
 }
 
 char32_t* __dks_Strcpy32(char32_t* dst, char32_t* src)
 {
-   for (uint32_t i = 0; '\0' != src[i]; i++) {
+   uint32_t i;
+   for (i = 0; U'\0' != src[i]; i++) {
       dst[i] = src[i];
    }
+
+   dst[i] = U'\0';
    return dst;
 }
 

@@ -1,6 +1,7 @@
 # Binary
 binary
 binary_o3
+binary_ofast
 
 # Prerequisites
 *.d

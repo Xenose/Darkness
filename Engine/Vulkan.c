@@ -6,10 +6,43 @@
 #include<stdio.h>
 /// End of temporary headers
 
+const char* requestedInstanceExtensions[] = {
+};
+
+char** dks_GetInstanceExtensions( uint32_t* count)
+{
+   uint32_t glfwCount = 0;
+   const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwCount);
+
+   *count = glfwCount + (sizeof(requestedInstanceExtensions) / 8);
+   char** extensions = dks_MallocTypes(char*, *count);
+
+   for (uint32_t i = 0; i < glfwCount; i++) {
+      extensions[i] = dks_Crestr(glfwExtensions[i]);
+   }
+
+   if (glfwCount < *count) {
+      for (uint32_t i = glfwCount; i < *count; i++) {
+	 extensions[i] = dks_Crestr(requestedInstanceExtensions[i]);
+      }
+   }
+
+   return extensions;
+}
+
 int dks_CreateVkInstance(struct dks_Info* dks, struct dks_Vulkan* vk)
 {
    VkApplicationInfo app;
    VkInstanceCreateInfo info;
+   uint32_t extensionCount = 0;
+   char** extensions = NULL;
+
+   if (NULL == (extensions = dks_GetInstanceExtensions(&extensionCount)))
+      goto ERROR_EXIT;
+
+   for (uint32_t i = 0; i < extensionCount; i++) {
+      printf("%s\n", extensions[i]);
+   }
 
    if (0 == vk->version.major && 0 == vk->version.minor && 0 == vk->version.patch) {
       vk->version.major = 1;
@@ -34,14 +67,18 @@ int dks_CreateVkInstance(struct dks_Info* dks, struct dks_Vulkan* vk)
    info.pApplicationInfo = &app;
    info.enabledLayerCount = 0;
    info.ppEnabledLayerNames = NULL;
-   info.enabledExtensionCount = 0;
-   info.ppEnabledExtensionNames = NULL;
+   info.enabledExtensionCount = extensionCount;
+   info.ppEnabledExtensionNames = (const char**)extensions;
 
    if (VK_SUCCESS != dks_LogCall(vkCreateInstance(&info, NULL, &vk->instance)))
       goto ERROR_EXIT;
 
+   dks_Free(extensions);
    return 0;
+
 ERROR_EXIT:
+   if (NULL != extensions)
+      dks_Free(extensions);
    return -1;
 }
 
@@ -109,6 +146,7 @@ int dks_SelectVkPhysicalDevice(struct dks_Info* dks, struct dks_Vulkan* vk, stru
 int dks_CreateVkDevice(struct dks_Info* dks, struct dks_Vulkan* vk, struct dks_VkPhysicalDevices* dev)
 {
    VkDeviceCreateInfo devInfo;
+
    return 0;
 }
 

@@ -31,7 +31,7 @@ const char* ___dks_GetRetName(const char* fuName, intptr_t code)
 	 case VK_ERROR_FEATURE_NOT_PRESENT:
 	    return "VK_ERROR_FEATURE_NOT_PRESENT";
 	 case VK_ERROR_EXTENSION_NOT_PRESENT:
-	    return "VK_ERROR_EXTENSION_NOT_PRESENT";
+	    return "\033[31mVK_ERROR_EXTENSION_NOT_PRESENT\033[0m";
 	 case VK_ERROR_LAYER_NOT_PRESENT:
 	    return "VK_ERROR_LAYER_NOT_PRESENT";
 	 case VK_ERROR_MEMORY_MAP_FAILED:
@@ -66,7 +66,7 @@ const char* ___dks_GetRetName(const char* fuName, intptr_t code)
 	 case 0:
 	    return "\033[32mDARKNESS NO ERROR\033[0m";
 	 case -1:
-	    return "\033[31DARKNESS ERROR\033[0m";
+	    return "\033[31mDARKNESS ERROR\033[0m";
       } 
       goto END;
    }
