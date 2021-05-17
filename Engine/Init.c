@@ -19,7 +19,7 @@ static struct option engCliOpt[] = {
  * note if ported to windows this needs to be reimplemented
  */
 
-void dks_ParseArgs(int arc, char** arv, struct dks_Info* dks)
+void dks_ParseArgs(int arc, char** arv, dks_Info* dks)
 {
    int arg;
    int index = 0;
@@ -43,7 +43,7 @@ void dks_ParseArgs(int arc, char** arv, struct dks_Info* dks)
    }
 }
 
-void dks_CheckInfo(struct dks_Info* dks)
+void dks_CheckInfo(dks_Info* dks)
 {
    if (NULL == dks->pName)
       dks->pName = dks_Crestr("No Name");
@@ -66,7 +66,7 @@ void dks_CheckInfo(struct dks_Info* dks)
 /* 
  * The main function for this engine 
  */
-int dks_InitDarkness(int arc, char** arv, struct dks_Info* dks)
+int dks_InitDarkness(int arc, char** arv, dks_Info* dks)
 {
    dks_ParseArgs(arc, arv, dks);
    dks_CheckInfo(dks);

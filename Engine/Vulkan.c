@@ -9,7 +9,7 @@
 const char* requestedInstanceExtensions[] = {
 };
 
-char** dks_GetInstanceExtensions( uint32_t* count)
+char** dks_GetInstanceExtensions(uint32_t* count)
 {
    uint32_t glfwCount = 0;
    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwCount);
@@ -30,70 +30,54 @@ char** dks_GetInstanceExtensions( uint32_t* count)
    return extensions;
 }
 
-int dks_CreateVkInstance(struct dks_Info* dks, struct dks_Vulkan* vk)
+int dks_CreateVkInstance(dks_Info* dks, dks_Vulkan* vk, dks_VkInstance* inst)
 {
-   VkApplicationInfo app;
-   VkInstanceCreateInfo info;
-   uint32_t extensionCount = 0;
-   uint32_t supportedAPI = 0;
-   char** extensions = NULL;
-
-
-   if (0 == vk->version.major && 0 == vk->version.minor && 0 == vk->version.patch) {
-      vk->version.major = 1;
-      vk->version.minor = 2;
-      vk->version.patch = 0;
+   if (0 == vk->api.major && 0 == vk->api.minor && 0 == vk->api.patch) {
+      vk->api.major = 1;
+      vk->api.minor = 2;
+      vk->api.patch = 0;
    }
 
-   if (VK_SUCCESS != dks_LogCall(vkEnumerateInstanceVersion(&supportedAPI)))
+   if (VK_SUCCESS != dks_LogCall(vkEnumerateInstanceVersion(&vk->supportedAPI)))
       goto ERROR_EXIT;
 
-   if (supportedAPI < VK_MAKE_VERSION(dks->engineVersion.major, dks->engineVersion.minor, dks->engineVersion.patch))
+   if (vk->supportedAPI > VK_MAKE_VERSION(vk->api.major, vk->api.minor, vk->api.patch))
       goto ERROR_EXIT;
 
-   if (NULL == (extensions = dks_GetInstanceExtensions(&extensionCount)))
+   if (NULL == (inst->ppExtensions = dks_GetInstanceExtensions(&inst->extensionCount)))
       goto ERROR_EXIT;
 
-   /* TO:DO Remove this later */
-   for (uint32_t i = 0; i < extensionCount; i++) {
-      printf("%s\n", extensions[i]);
-   }
-
-   app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-   app.pNext = NULL;
-   app.pApplicationName = dks->pName;
-   app.pEngineName = dks->pEngineName;
-   app.applicationVersion = VK_MAKE_VERSION(
+   inst->aInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+   inst->aInfo.pNext = NULL;
+   inst->aInfo.pApplicationName = dks->pName;
+   inst->aInfo.pEngineName = dks->pEngineName;
+   inst->aInfo.applicationVersion = VK_MAKE_VERSION(
 	 dks->version.major, dks->version.minor, dks->version.patch);
-   app.engineVersion = VK_MAKE_VERSION(
+   inst->aInfo.engineVersion = VK_MAKE_VERSION(
 	 dks->engineVersion.major, dks->engineVersion.minor, dks->engineVersion.patch);
-   app.apiVersion = VK_MAKE_VERSION(
-	 vk->version.major, vk->version.minor, vk->version.patch);
+   inst->aInfo.apiVersion = VK_MAKE_VERSION(
+	 vk->api.major, vk->api.minor, vk->api.patch);
 
-   info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-   info.pNext = NULL;
-   info.flags = 0x0;
-   info.pApplicationInfo = &app;
-   info.enabledLayerCount = 0;
-   info.ppEnabledLayerNames = NULL;
-   info.enabledExtensionCount = extensionCount;
-   info.ppEnabledExtensionNames = (const char**)extensions;
+   inst->cInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+   inst->cInfo.pNext = NULL;
+   inst->cInfo.flags = 0x0;
+   inst->cInfo.pApplicationInfo = &inst->aInfo;
+   inst->cInfo.enabledLayerCount = 0;
+   inst->cInfo.ppEnabledLayerNames = NULL;
+   inst->cInfo.enabledExtensionCount = inst->extensionCount;
+   inst->cInfo.ppEnabledExtensionNames = (const char**)inst->ppExtensions;
 
-   if (VK_SUCCESS != dks_LogCall(vkCreateInstance(&info, NULL, &vk->instance)))
+   if (VK_SUCCESS != dks_LogCall(vkCreateInstance(&inst->cInfo, NULL, &inst->instance)))
       goto ERROR_EXIT;
 
-   dks_Free(extensions);
    return 0;
-
 ERROR_EXIT:
-   if (NULL != extensions)
-      dks_Free(extensions);
    return -1;
 }
 
-int dks_CreateVkSurface(struct dks_Info* dks, struct dks_Vulkan* vk)
+int dks_CreateVkSurface(dks_Info* dks, dks_VkInstance* inst, dks_VkSurface* sur)
 {
-   if (VK_SUCCESS != dks_LogCall(glfwCreateWindowSurface(vk->instance, dks->pWindow, NULL, &vk->surface)))
+   if (VK_SUCCESS != dks_LogCall(glfwCreateWindowSurface(inst->instance, dks->pWindow, NULL, &sur->surface)))
       goto ERROR_EXIT;
 
    return 0;
@@ -121,9 +105,9 @@ const char* dks_GetVendorColour(uint32_t id)
    return "";
 }
 
-int dks_GetVkPhysicalDevices(struct dks_Info* dks, struct dks_Vulkan* vk, struct dks_VkPhysicalDevices* dev)
+int dks_GetVkPhysicalDevices(dks_VkInstance* inst, dks_VkPhysicalDevices* dev)
 {
-   if (VK_SUCCESS != dks_LogCall(vkEnumeratePhysicalDevices(vk->instance, &dev->count, NULL)))
+   if (VK_SUCCESS != dks_LogCall(vkEnumeratePhysicalDevices(inst->instance, &dev->count, NULL)))
       goto ERROR_EXIT;
 
    dev->pDevices = dks_MallocTypes(VkPhysicalDevice, dev->count);
@@ -133,8 +117,8 @@ int dks_GetVkPhysicalDevices(struct dks_Info* dks, struct dks_Vulkan* vk, struct
    if (NULL == dev->pDevices)
       goto ERROR_EXIT;
    
-   if (VK_SUCCESS != dks_LogCall(vkEnumeratePhysicalDevices(vk->instance, &dev->count, dev->pDevices)))
-	 goto ERROR_FREE_DEVICES;
+   if (VK_SUCCESS != dks_LogCall(vkEnumeratePhysicalDevices(inst->instance, &dev->count, dev->pDevices)))
+	 goto ERROR_EXIT;
 
    for (uint32_t i = 0; i < dev->count; i++) {
       vkGetPhysicalDeviceProperties(dev->pDevices[i], &dev->pProperties[i]);
@@ -147,23 +131,22 @@ int dks_GetVkPhysicalDevices(struct dks_Info* dks, struct dks_Vulkan* vk, struct
    }
 
    return 0;
-ERROR_FREE_DEVICES:
-   dks_Free(dev->pDevices);
-   dks_Free(dev->pProperties);
-   dks_Free(dev->pFeatures);
-   dev->count = 0;
 ERROR_EXIT:
    return -1;
 }
 
-int dks_SelectVkPhysicalDevice(struct dks_Info* dks, struct dks_Vulkan* vk, struct dks_VkPhysicalDevices* dev)
+
+
+int dks_SelectVkPhysicalDevice(dks_Info* dks, dks_Vulkan* vk, dks_VkPhysicalDevices* dev)
 {
    dev->index = 0;
    dev->pSelected = &dev->pDevices[dev->index];
    return 0;
 }
 
-uint32_t dks_VkFindQueueFamily(struct dks_VkPhysicalDevices* dev, const uint32_t flags)
+
+
+uint32_t dks_VkFindQueueFamily(dks_VkPhysicalDevices* dev, const uint32_t flags)
 {
    uint32_t count 			= 0;
    VkQueueFamilyProperties* properties	= NULL;
@@ -182,7 +165,9 @@ uint32_t dks_VkFindQueueFamily(struct dks_VkPhysicalDevices* dev, const uint32_t
    return 0;
 }
 
-int dks_CreateVkDevice(struct dks_Info* dks, struct dks_Vulkan* vk, struct dks_VkPhysicalDevices* dev)
+
+
+int dks_CreateVkDevice(dks_Info* dks, dks_Vulkan* vk, dks_VkPhysicalDevices* dev)
 {
    VkDeviceCreateInfo		devInfo;
    VkDeviceQueueCreateInfo	queInfo;
@@ -217,7 +202,9 @@ ERROR_EXIT:
    return -1;
 }
 
-int dks_CreateVkCommandPool(struct dks_Info* dks, struct dks_Vulkan* vk)
+
+
+int dks_CreateVkCommandPool(dks_Info* dks, dks_Vulkan* vk)
 {
    VkCommandPoolCreateInfo info;
 
@@ -234,27 +221,32 @@ ERROR_EXIT:
    return -1;
 }
 
-int dks_InitVulkan(struct dks_Info* dks)
+
+
+int dks_InitVulkan(dks_Info* dks)
 {
    if (NULL == dks->vulkan)
-      dks->vulkan = dks_MallocType(struct dks_Vulkan);
-   
-   if (0 != dks_LogCall(dks_CreateVkInstance(dks, dks->vulkan)))
-      goto ERROR_EXIT;
-   
-   if (0 != dks_LogCall(dks_CreateVkSurface(dks, dks->vulkan)))
-      goto ERROR_EXIT;
+      dks->vulkan = dks_MallocType(dks_Vulkan);
 
-   if (0 != dks_LogCall(dks_GetVkPhysicalDevices(dks, dks->vulkan, &dks->vulkan->physical)))
+   dks_Vulkan* vk = dks->vulkan;
+   
+
+   if (0 != dks_LogCall(dks_CreateVkInstance(dks, vk, &vk->instance)))
       goto ERROR_EXIT;
    
-   if (0 != dks_LogCall(dks_SelectVkPhysicalDevice(dks, dks->vulkan, &dks->vulkan->physical)))
+   if (0 != dks_LogCall(dks_CreateVkSurface(dks, &vk->instance, &vk->surface)))
       goto ERROR_EXIT;
 
-   if (0 != dks_LogCall(dks_CreateVkDevice(dks, dks->vulkan, &dks->vulkan->physical)))
+   if (0 != dks_LogCall(dks_GetVkPhysicalDevices(&vk->instance, &vk->physical)))
+      goto ERROR_EXIT;
+   
+   if (0 != dks_LogCall(dks_SelectVkPhysicalDevice(dks, vk, &vk->physical)))
       goto ERROR_EXIT;
 
-   if (0 != dks_LogCall(dks_CreateVkCommandPool(dks, dks->vulkan)))
+   if (0 != dks_LogCall(dks_CreateVkDevice(dks, vk, &vk->physical)))
+      goto ERROR_EXIT;
+
+   if (0 != dks_LogCall(dks_CreateVkCommandPool(dks, vk)))
       goto ERROR_EXIT;
 
    return 0;

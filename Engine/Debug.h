@@ -11,6 +11,6 @@
    #define dks_LogCall(func) func
 #endif
 
-extern int ___dks_internal_log_call(intptr_t code, const char* fuName, const char* fiName, uint32_t line);
+extern int ___dks_internal_log_call(int64_t code, const char* fuName, const char* fiName, uint32_t line);
 
 #endif //__darkness_debug_header__

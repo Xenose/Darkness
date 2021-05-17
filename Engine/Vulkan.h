@@ -3,6 +3,6 @@
 
 #include"Types.h"
 
-extern int dks_InitVulkan(struct dks_Info* dks);
+extern int dks_InitVulkan(dks_Info* dks);
 
 #endif //__darkness_vulkan_header__
