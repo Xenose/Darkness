@@ -76,9 +76,6 @@ int dks_InitDarkness(int arc, char** arv, struct dks_Info* dks)
 
    if (GLFW_TRUE != dks_LogCall(glfwVulkanSupported()))
       dks->flags |= DARKNESS_FLAG_USE_OPENGL; 
-
-   if (0 != dks_LogCall(dks_InitVulkan(dks)))
-      dks->flags |= DARKNESS_FLAG_USE_OPENGL; 
    
    if (DARKNESS_FLAG_USE_OPENGL & ~dks->flags)
       glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -87,6 +84,9 @@ int dks_InitDarkness(int arc, char** arv, struct dks_Info* dks)
 
    if (NULL == dks->pWindow)
       goto ERROR_TERMINATE_GLFW;
+
+   if (0 != dks_LogCall(dks_InitVulkan(dks)))
+      dks->flags |= DARKNESS_FLAG_USE_OPENGL; 
 
    if (DARKNESS_FLAG_USE_OPENGL & dks->flags)
       glfwMakeContextCurrent(dks->pWindow);

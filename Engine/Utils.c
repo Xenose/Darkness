@@ -10,21 +10,21 @@ size_t __dks_Strlen8(const char* text)
 {
    size_t i = 0;
    while('\0' != text[i++]) {}
-   return i + 1;
+   return i;
 }
 
 size_t __dks_Strlen16(const char16_t* text)
 {
    size_t i = 0;
    while(u'\0' != text[i++]) {}
-   return i + 1;
+   return i;
 }
 
 size_t __dks_Strlen32(const char32_t* text)
 {
    size_t i = 0;
    while(U'\0' != text[i++]) {}
-   return i + 1;
+   return i;
 }
 
 /// The strcpy functions

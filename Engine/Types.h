@@ -70,6 +70,9 @@ struct dks_Scene {
 struct dks_VkPhysicalDevices {
    uint32_t 			count;
    uint32_t			index;
+   
+   VkPhysicalDevice*		pSelected;
+
    VkPhysicalDevice*		pDevices;
    VkPhysicalDeviceProperties*	pProperties;
    VkPhysicalDeviceFeatures*	pFeatures;
