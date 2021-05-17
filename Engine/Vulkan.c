@@ -187,7 +187,7 @@ int dks_CreateVkDevice(struct dks_Info* dks, struct dks_Vulkan* vk, struct dks_V
    VkDeviceCreateInfo		devInfo;
    VkDeviceQueueCreateInfo	queInfo;
    float			quePriorities = 1.0f;
-   uint32_t			queIndex = dks_VkFindQueueFamily(dev, VK_QUEUE_GRAPHICS_BIT);
+   uint32_t			queIndex = vk->queueFamilyIndex = dks_VkFindQueueFamily(dev, VK_QUEUE_GRAPHICS_BIT);
 
    queInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
    queInfo.pNext = NULL;
@@ -208,6 +208,25 @@ int dks_CreateVkDevice(struct dks_Info* dks, struct dks_Vulkan* vk, struct dks_V
    devInfo.pEnabledFeatures = NULL;
 
    if (VK_SUCCESS != dks_LogCall(vkCreateDevice(*dev->pSelected, &devInfo, NULL, &vk->device)))
+      goto ERROR_EXIT;
+
+   vkGetDeviceQueue(vk->device, queIndex, 0, &vk->queue);
+
+   return 0;
+ERROR_EXIT:
+   return -1;
+}
+
+int dks_CreateVkCommandPool(struct dks_Info* dks, struct dks_Vulkan* vk)
+{
+   VkCommandPoolCreateInfo info;
+
+   info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+   info.pNext = NULL;
+   info.flags = 0x0;
+   info.queueFamilyIndex = vk->queueFamilyIndex;
+
+   if (VK_SUCCESS != dks_LogCall(vkCreateCommandPool(vk->device, &info, NULL, &vk->pool)))
       goto ERROR_EXIT;
 
    return 0;
@@ -235,6 +254,8 @@ int dks_InitVulkan(struct dks_Info* dks)
    if (0 != dks_LogCall(dks_CreateVkDevice(dks, dks->vulkan, &dks->vulkan->physical)))
       goto ERROR_EXIT;
 
+   if (0 != dks_LogCall(dks_CreateVkCommandPool(dks, dks->vulkan)))
+      goto ERROR_EXIT;
 
    return 0;
 ERROR_EXIT:

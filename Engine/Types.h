@@ -82,9 +82,13 @@ struct dks_Vulkan {
    struct dks_Version version;
    
    VkInstance			instance;
-   struct dks_VkPhysicalDevices physical;
-   VkDevice			device;
    VkSurfaceKHR 		surface;
+   struct dks_VkPhysicalDevices physical;
+
+   uint32_t			queueFamilyIndex;
+   VkDevice			device;
+   VkQueue			queue;
+   VkCommandPool		pool;
 };
 
 struct dks_SystemInfo {
